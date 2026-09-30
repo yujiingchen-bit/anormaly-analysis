@@ -1,0 +1,703 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>內部異常行為偵測</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ── 色彩設定：低飽和、中性灰為主，只用一個主色 ── */
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --line: #e3e6eb;
+  --text: #1f2933;
+  --muted: #66707c;
+  --accent: #3b6a96;        /* 主色：沉穩藍 */
+  --accent-soft: #e8eef5;
+  --plan: #a8854a;          /* 規劃中：低彩度土黃 */
+  --plan-soft: #f6f1e7;
+  --lane1: #f2f5f9;
+  --node: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15181c; --surface: #1d2126; --line: #2f353d; --text: #e4e7eb; --muted: #9aa3ad;
+    --accent: #8fb3d6; --accent-soft: #24303c; --plan: #cfae78; --plan-soft: #2b2720;
+    --lane1: #1a2027; --node: #22272d;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15181c; --surface: #1d2126; --line: #2f353d; --text: #e4e7eb; --muted: #9aa3ad;
+  --accent: #8fb3d6; --accent-soft: #24303c; --plan: #cfae78; --plan-soft: #2b2720;
+  --lane1: #1a2027; --node: #22272d;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  line-height: 1.7; font-size: 16px;
+}
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+/* ── 頁首 ── */
+header { padding: 40px 0 8px; }
+header .eyebrow { color: var(--accent); font-weight: 500; font-size: .9rem; letter-spacing: .08em; }
+header h1 { margin: 4px 0 8px; font-size: 2rem; line-height: 1.3; }
+header p { margin: 0; color: var(--muted); max-width: 780px; }
+
+/* ── 主分頁 ── */
+nav.tabs {
+  position: sticky; top: 0; z-index: 10; background: var(--bg);
+  display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-top: 24px;
+  overflow-x: auto;
+}
+nav.tabs button {
+  background: none; border: 0; padding: 14px 18px; font: inherit; color: var(--muted);
+  cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap;
+}
+nav.tabs button.active { color: var(--text); border-bottom-color: var(--accent); font-weight: 500; }
+.panel { display: none; padding: 32px 0 64px; }
+.panel.active { display: block; }
+
+h2 { font-size: 1.4rem; margin: 0 0 6px; }
+h3 { font-size: 1.1rem; margin: 40px 0 14px; }
+.lead { color: var(--muted); margin: 0 0 20px; }
+section + section { margin-top: 48px; }
+
+/* ── 卡片與格線 ── */
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+.g5 { grid-template-columns: repeat(5, 1fr); }
+.card {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px;
+}
+.card h4 { margin: 0 0 8px; font-size: 1rem; }
+.card p, .card li { color: var(--muted); font-size: .92rem; margin: 0; }
+.card ul { margin: 0; padding-left: 18px; }
+.card ul li + li { margin-top: 4px; }
+.card b { color: var(--text); font-weight: 500; }
+.step-no { color: var(--accent); font-weight: 700; font-size: .85rem; }
+
+.tag { display: inline-block; font-size: .75rem; padding: 1px 10px; border-radius: 999px; margin-left: 8px; vertical-align: 2px; font-weight: 500; }
+.tag.done { background: var(--accent-soft); color: var(--accent); }
+.tag.plan { background: var(--plan-soft); color: var(--plan); }
+
+/* ── 架構圖（滿版） ── */
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; overflow-x: auto; }
+.diagram svg { display: block; width: 100%; min-width: 900px; height: auto; }
+.diagram text { font-family: inherit; fill: var(--text); }
+.diagram .t-title { font-size: 20px; font-weight: 700; }
+.diagram .t-body { font-size: 16px; fill: var(--muted); }
+.diagram .t-head { font-size: 17px; font-weight: 700; fill: var(--muted); letter-spacing: .1em; }
+.diagram .t-lane { font-size: 17px; font-weight: 700; }
+.diagram .t-small { font-size: 14px; fill: var(--muted); }
+.diagram .node { fill: var(--node); stroke: var(--line); stroke-width: 1.2; }
+.diagram .node-key { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.2; }
+.diagram .node-plan { fill: var(--node); stroke: var(--plan); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.diagram .lane1 { fill: var(--lane1); stroke: none; }
+.diagram .lane2 { fill: var(--plan-soft); stroke: var(--plan); stroke-dasharray: 6 5; stroke-width: 1; opacity: .9; }
+.diagram .arrow { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+.diagram .arrow-plan { stroke: var(--plan); stroke-width: 1.4; fill: none; stroke-dasharray: 6 5; }
+.legend { display: flex; gap: 20px; flex-wrap: wrap; font-size: .85rem; color: var(--muted); margin-top: 12px; }
+.legend span::before { content: ""; display: inline-block; width: 22px; height: 0; vertical-align: middle; margin-right: 6px; border-top: 2px solid var(--muted); }
+.legend .l-plan::before { border-top: 2px dashed var(--plan); }
+
+/* ── 資料集數字 ── */
+.stat { font-size: 1.8rem; font-weight: 700; line-height: 1.2; color: var(--text); }
+.stat-label { color: var(--muted); font-size: .85rem; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 5px 14px; border-radius: 8px; font-size: .9rem; border: 1px solid var(--line); color: var(--muted); }
+.chip.on { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 500; }
+.bar-row { display: grid; grid-template-columns: 88px 1fr; align-items: center; gap: 10px; font-size: .88rem; margin: 6px 0; }
+.bar-track { position: relative; height: 10px; background: var(--line); border-radius: 5px; }
+.bar-fill { position: absolute; left: 20%; right: 0; top: 0; bottom: 0; background: var(--accent); border-radius: 5px; opacity: .75; }
+.axis { display: grid; grid-template-columns: 88px 1fr; gap: 10px; font-size: .75rem; color: var(--muted); }
+.axis div:last-child { display: flex; justify-content: space-between; }
+
+/* ── 影片區（重點展示，放大） ── */
+.video {
+  position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line);
+}
+.video iframe, .video video { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: #000; }
+.video .empty {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--muted); border: 2px dashed var(--line); border-radius: 12px; margin: 14px;
+}
+.video .empty .play {
+  width: 64px; height: 64px; border-radius: 50%; border: 2px solid var(--line); position: relative; margin-bottom: 14px;
+}
+.video .empty .play::after {
+  content: ""; position: absolute; left: 26px; top: 20px;
+  border-left: 16px solid var(--line); border-top: 11px solid transparent; border-bottom: 11px solid transparent;
+}
+.video .empty b { color: var(--text); font-weight: 500; }
+.feature { margin-bottom: 8px; }
+.feature-caption { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 12px; color: var(--muted); font-size: .92rem; }
+
+/* 維度切換 */
+.seg { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.seg button {
+  font: inherit; font-size: .92rem; padding: 7px 16px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+}
+.seg button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.dim { display: none; }
+.dim.active { display: block; }
+.dim-info { margin-top: 16px; }
+.note { margin-top: 10px; font-size: .85rem; color: var(--plan); }
+
+/* ── 資料表格 ── */
+table.data { width: 100%; border-collapse: collapse; font-size: .9rem; }
+table.data th, table.data td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.data th { color: var(--muted); font-weight: 500; font-size: .82rem; }
+table.data td:first-child { white-space: nowrap; font-weight: 500; }
+table.data code { font-size: .82rem; background: var(--bg); padding: 1px 6px; border-radius: 4px; color: var(--muted); }
+.table-scroll { overflow-x: auto; }
+
+/* ── 橫向流程圖（資料處理流程） ── */
+.flow { display: flex; align-items: stretch; gap: 0; }
+.flow .fnode { flex: 1; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px; }
+.flow .fnode.src { background: var(--bg); border-style: dashed; }
+.flow .fnode.end { border-color: var(--accent); background: var(--accent-soft); }
+.flow .fnode h4 { margin: 4px 0 8px; font-size: 1.05rem; }
+.flow .fnode p { margin: 0; color: var(--muted); font-size: .9rem; }
+.flow .farrow { flex: 0 0 36px; display: flex; align-items: center; justify-content: center; color: var(--muted); }
+.flow .farrow::before { content: ""; width: 20px; height: 2px; background: var(--muted); }
+.flow .farrow::after { content: ""; border-left: 7px solid var(--muted); border-top: 5px solid transparent; border-bottom: 5px solid transparent; }
+.mini { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+.mini span { font-size: .78rem; padding: 1px 8px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); color: var(--muted); }
+
+/* ── 儀表板建置流程（三層維度） ── */
+.build { display: grid; grid-template-columns: 1fr 64px 1fr 64px 1.25fr; align-items: stretch; }
+.layer { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px; }
+.layer.top { border-color: var(--accent); }
+.layer .lv { display: inline-block; font-size: .78rem; font-weight: 700; color: var(--accent); background: var(--accent-soft); padding: 2px 10px; border-radius: 6px; }
+.layer h4 { margin: 10px 0 2px; font-size: 1.15rem; }
+.layer .page { color: var(--muted); font-size: .85rem; margin-bottom: 12px; }
+.layer .look { font-size: .78rem; color: var(--muted); letter-spacing: .08em; margin-bottom: 4px; }
+.layer ul { margin: 0; padding-left: 18px; font-size: .9rem; }
+.layer li + li { margin-top: 4px; }
+.barrow { display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--muted); font-size: .78rem; text-align: center; gap: 6px; }
+.barrow i { display: flex; align-items: center; }
+.barrow i::before { content: ""; width: 34px; height: 2px; background: var(--muted); }
+.barrow i::after { content: ""; border-left: 8px solid var(--muted); border-top: 6px solid transparent; border-bottom: 6px solid transparent; }
+.behav { display: grid; gap: 8px; margin-top: 4px; }
+.behav div { border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; font-size: .86rem; color: var(--muted); }
+.behav b { display: block; color: var(--text); font-weight: 500; font-size: .92rem; }
+
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); padding: 14px 18px; border-radius: 0 8px 8px 0; margin-top: 16px; }
+
+.progress { height: 8px; background: var(--line); border-radius: 4px; margin-top: 20px; overflow: hidden; }
+.progress div { height: 100%; width: 0; background: var(--plan); }
+
+footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--muted); font-size: .85rem; }
+a { color: var(--accent); }
+
+/* ── 手機版 ── */
+@media (max-width: 860px) {
+  .g2, .g3, .g4, .g5 { grid-template-columns: 1fr; }
+  .wrap { padding: 0 16px; }
+  header h1 { font-size: 1.6rem; }
+  /* 流程圖改成直向，箭頭朝下 */
+  .flow, .build { display: flex; flex-direction: column; }
+  .flow .farrow, .barrow { flex: 0 0 36px; transform: rotate(90deg); }
+  .barrow span { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="eyebrow">CERT r4.2 ・ 內部威脅行為分析</div>
+  <h1>內部異常行為偵測儀表板</h1>
+  <p>從登入登出、上網、裝置插拔、檔案複製、Email 等行為維度建構異常分析儀表板，並結合機器學習每日預測高風險員工，及早預防內部資安事件。</p>
+</header>
+
+<div class="wrap">
+  <nav class="tabs" id="mainTabs">
+    <button class="active" data-panel="p-frame">專案框架</button>
+    <button data-panel="p-one">第一部分：異常行為儀表板</button>
+    <button data-panel="p-two">第二部分：機器學習</button>
+    <button data-panel="p-future">未來應用</button>
+  </nav>
+
+  <!-- ═════════ 專案框架 ═════════ -->
+  <div class="panel active" id="p-frame">
+    <section>
+      <h2>整體專案框架</h2>
+      <p class="lead">第一部分做「看得見異常」的儀表板，第二部分用機器學習做「預測誰有風險」，最後把預測結果回寫到主儀表板。</p>
+
+      <div class="diagram">
+        <svg viewBox="0 0 1240 650" role="img" aria-label="專案架構圖：CERT 原始資料經 SQL Server ETL 與 Power BI 建模產出三層儀表板；第二部分以 Python 寬表訓練 ML 模型，預測結果回寫主儀表板">
+          <defs>
+            <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+            </marker>
+            <marker id="ahp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--plan)"/>
+            </marker>
+          </defs>
+
+          <!-- 欄位標題 -->
+          <text class="t-head" x="120" y="32" text-anchor="middle">資料來源</text>
+          <text class="t-head" x="405" y="32" text-anchor="middle">資料清理</text>
+          <text class="t-head" x="720" y="32" text-anchor="middle">資料建模</text>
+          <text class="t-head" x="1035" y="32" text-anchor="middle">呈現與應用</text>
+
+          <!-- 泳道背景 -->
+          <rect class="lane1" x="250" y="50" width="950" height="335" rx="12"/>
+          <text class="t-lane" x="268" y="78" style="fill:var(--accent)">第一部分｜異常行為儀表板（已完成）</text>
+          <rect class="lane2" x="250" y="405" width="950" height="160" rx="12"/>
+          <text class="t-lane" x="268" y="433" style="fill:var(--plan)">第二部分｜監督式機器學習（規劃中）</text>
+
+          <!-- 資料來源 -->
+          <rect class="node" x="20" y="95" width="200" height="455" rx="10"/>
+          <text class="t-title" x="38" y="128">CERT r4.2</text>
+          <text class="t-body" x="38" y="155">1,000 名員工</text>
+          <text class="t-body" x="38" y="179">17 個月紀錄</text>
+          <line x1="38" y1="198" x2="202" y2="198" stroke="var(--line)"/>
+          <text class="t-body" x="38" y="228">登入登出</text>
+          <text class="t-body" x="38" y="256">USB 插拔</text>
+          <text class="t-body" x="38" y="284">上網紀錄</text>
+          <text class="t-body" x="38" y="312">電子郵件</text>
+          <text class="t-body" x="38" y="340">檔案複製</text>
+          <text class="t-body" x="38" y="368">心理測驗 OCEAN</text>
+          <text class="t-body" x="38" y="396">LDAP 月名冊</text>
+          <line x1="38" y1="418" x2="202" y2="418" stroke="var(--line)"/>
+          <text class="t-body" x="38" y="448" style="fill:var(--plan);font-weight:500">惡意事件標籤</text>
+          <text class="t-body" x="38" y="474">70 件・3 種情境</text>
+
+          <!-- 第一部分：資料清理 -->
+          <rect class="node" x="270" y="95" width="270" height="80" rx="8"/>
+          <text class="t-title" x="288" y="127">匯入 SQL Server</text>
+          <text class="t-body" x="288" y="155">展示區間 2010/7 – 8</text>
+
+          <rect class="node" x="270" y="190" width="270" height="80" rx="8"/>
+          <text class="t-title" x="288" y="222">事實表 View</text>
+          <text class="t-body" x="288" y="250">5 類行為 ＋ 彙總表</text>
+
+          <rect class="node" x="270" y="285" width="270" height="80" rx="8"/>
+          <text class="t-title" x="288" y="317">維度表 View</text>
+          <text class="t-body" x="288" y="345">日期・OCEAN・離職狀態</text>
+
+          <!-- 第一部分：資料建模 -->
+          <rect class="node" x="600" y="95" width="240" height="125" rx="8"/>
+          <text class="t-title" x="618" y="130">Power BI</text>
+          <text class="t-title" x="618" y="156">星狀模型</text>
+          <text class="t-body" x="618" y="186">員工 × 日期 串接</text>
+
+          <rect class="node" x="600" y="240" width="240" height="125" rx="8"/>
+          <text class="t-title" x="618" y="275">DAX 量值</text>
+          <text class="t-body" x="618" y="305">各行為異常次數</text>
+          <text class="t-body" x="618" y="331">當日 vs 歷史平均</text>
+
+          <!-- 第一部分：呈現（三層鑽研） -->
+          <rect class="node-key" x="890" y="95" width="290" height="75" rx="8"/>
+          <text class="t-title" x="908" y="125">① 全體員工</text>
+          <text class="t-body" x="908" y="153">主儀表板・Top10</text>
+
+          <rect class="node" x="890" y="190" width="290" height="75" rx="8"/>
+          <text class="t-title" x="908" y="220">② 單一員工</text>
+          <text class="t-body" x="908" y="248">各行為異常總覽</text>
+
+          <rect class="node" x="890" y="285" width="290" height="80" rx="8"/>
+          <text class="t-title" x="908" y="317">③ 單一行為</text>
+          <text class="t-body" x="908" y="345">Logon・HTTP・Email・File</text>
+
+          <!-- 第二部分 -->
+          <rect class="node-plan" x="270" y="455" width="270" height="90" rx="8"/>
+          <text class="t-title" x="288" y="490">Python 行為寬表</text>
+          <text class="t-body" x="288" y="520">員工 × 日特徵 ＋ 標籤</text>
+
+          <rect class="node-plan" x="600" y="455" width="240" height="90" rx="8"/>
+          <text class="t-title" x="618" y="490">監督式 ML 模型</text>
+          <text class="t-body" x="618" y="520">訓練・評估 Recall</text>
+
+          <rect class="node-plan" x="890" y="455" width="290" height="90" rx="8"/>
+          <text class="t-title" x="908" y="490">每日風險預測</text>
+          <text class="t-body" x="908" y="520">Top10 高風險員工</text>
+
+          <!-- 箭頭：第一部分 -->
+          <line class="arrow" x1="220" y1="135" x2="268" y2="135" marker-end="url(#ah)"/>
+          <line class="arrow" x1="405" y1="175" x2="405" y2="188" marker-end="url(#ah)"/>
+          <line class="arrow" x1="405" y1="270" x2="405" y2="283" marker-end="url(#ah)"/>
+          <line class="arrow" x1="540" y1="205" x2="598" y2="205" marker-end="url(#ah)"/>
+          <line class="arrow" x1="540" y1="325" x2="598" y2="325" marker-end="url(#ah)"/>
+          <line class="arrow" x1="720" y1="220" x2="720" y2="238" marker-end="url(#ah)"/>
+          <line class="arrow" x1="840" y1="132" x2="888" y2="132" marker-end="url(#ah)"/>
+          <line class="arrow" x1="840" y1="325" x2="888" y2="325" marker-end="url(#ah)"/>
+          <line class="arrow" x1="1035" y1="170" x2="1035" y2="188" marker-end="url(#ah)"/>
+          <line class="arrow" x1="1035" y1="265" x2="1035" y2="283" marker-end="url(#ah)"/>
+          <text class="t-small" x="1046" y="184">點選鑽研</text>
+
+          <!-- 箭頭：第二部分 -->
+          <line class="arrow-plan" x1="220" y1="500" x2="268" y2="500" marker-end="url(#ahp)"/>
+          <line class="arrow-plan" x1="540" y1="500" x2="598" y2="500" marker-end="url(#ahp)"/>
+          <line class="arrow-plan" x1="840" y1="500" x2="888" y2="500" marker-end="url(#ahp)"/>
+          <path class="arrow-plan" d="M1180,500 H1212 V132 H1182" marker-end="url(#ahp)"/>
+          <text class="t-small" x="1228" y="316" text-anchor="middle" transform="rotate(90 1228 316)" style="fill:var(--plan)">預測結果回寫主儀表板</text>
+
+          <!-- 底部：版本控管 -->
+          <rect class="node" x="20" y="585" width="1180" height="50" rx="8"/>
+          <text class="t-body" x="610" y="616" text-anchor="middle">GitHub 版本控管與備份　・　SQL 腳本　・　Power BI 檔　・　網頁展示</text>
+        </svg>
+        <div class="legend"><span>已完成流程</span><span class="l-plan">規劃中流程</span></div>
+      </div>
+
+      <div class="grid g2" style="margin-top:20px">
+        <div class="card">
+          <h4>第一部分：員工異常行為儀表板<span class="tag done">已完成</span></h4>
+          <ul>
+            <li><b>目的</b>：多行為維度建構異常分析儀表板，及早預防異常資安事件</li>
+            <li><b>資料清理</b>：SQL Server ETL，產出 7 大事實與維度表、員工離職狀態表</li>
+            <li><b>資料建模</b>：Power BI 星狀模型與量值、儀表板設計</li>
+            <li><b>版本備份</b>：GitHub 多分支</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>第二部分：CERT 監督式機器學習<span class="tag plan">規劃中</span></h4>
+          <ul>
+            <li><b>目的</b>：透過機器學習每日偵測高風險員工</li>
+            <li><b>資料清理</b>：Python 彙整 ML 行為標籤表（寬表）</li>
+            <li><b>資料建模</b>：主儀表板加入 Top10 高風險員工預測值</li>
+            <li><b>版本備份</b>：GitHub</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>背景文獻：為什麼要看「行為」？</h2>
+      <p class="lead">內部人員擁有合法權限，傳統特徵碼資安設備認不出「合法權限下的惡意操作」，因此以使用者行為為基礎的內部威脅偵測（UBITD）是企業的第一道防線。在 CERT 等資料集上，結合 LSTM、SVM 等模型，召回率（Recall）可達 90%～99%。</p>
+      <div class="card">
+        <h4>UBITD 監控 8 大類日誌<span style="color:var(--muted);font-weight:400;font-size:.85rem">　藍底為本專案涵蓋的 6 類</span></h4>
+        <div class="chips" style="margin-top:12px">
+          <span class="chip on">登入登出</span><span class="chip on">檔案操作</span><span class="chip on">USB 裝置</span>
+          <span class="chip on">網頁瀏覽</span><span class="chip on">電子郵件</span><span class="chip on">心理傾向（OCEAN）</span>
+          <span class="chip">鍵盤滑鼠動態</span><span class="chip">系統指令列</span>
+        </div>
+        <p style="margin-top:16px;font-size:.82rem">Kamatchi, K. &amp; Uma, E. (2025). Insights into user behavioral-based insider threat detection: systematic review. <i>International Journal of Information Security</i>, 24:88. <a href="https://doi.org/10.1007/s10207-025-01002-6" target="_blank" rel="noopener">DOI</a></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>資料集介紹</h2>
+      <p class="lead">CERT Insider Threat r4.2 是 CMU CERT 製作的合成資料。真實企業員工 log 過於敏感無法公開，因此以模擬方式產生。<a href="https://www.kaggle.com/datasets/andrihjonior/cert-insider-threat-dataset-r4-2/data" target="_blank" rel="noopener">Kaggle 資料集</a></p>
+      <div class="grid g4">
+        <div class="card"><div class="stat">1,000</div><div class="stat-label">模擬員工</div></div>
+        <div class="card"><div class="stat">17 個月</div><div class="stat-label">2009/12 – 2011/05</div></div>
+        <div class="card"><div class="stat">70</div><div class="stat-label">惡意事件</div></div>
+        <div class="card"><div class="stat">3</div><div class="stat-label">惡意情境劇本</div></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h4>資料內容與紀錄時間點</h4>
+        <p style="margin-bottom:12px">5 類行為 log 每一筆都記錄到「秒」，並標註是哪位員工、在哪台電腦上的操作。</p>
+        <div class="table-scroll">
+          <table class="data">
+            <thead><tr><th>檔案</th><th>紀錄時間點</th><th>每筆紀錄內容</th></tr></thead>
+            <tbody>
+              <tr><td>logon.csv</td><td>每次登入／登出（精確到秒）</td><td>員工 ID、電腦 ID、動作（Logon / Logoff）</td></tr>
+              <tr><td>device.csv</td><td>每次插拔 USB（精確到秒）</td><td>員工 ID、電腦 ID、動作（Connect / Disconnect）</td></tr>
+              <tr><td>http.csv</td><td>每次瀏覽網頁（精確到秒）</td><td>員工 ID、電腦 ID、網址、網頁內容關鍵字</td></tr>
+              <tr><td>email.csv</td><td>每封寄出的信（精確到秒）</td><td>寄件人、收件人（to / cc / bcc）、信件大小、附件數</td></tr>
+              <tr><td>file.csv</td><td>每次複製檔案到 USB（精確到秒）</td><td>員工 ID、電腦 ID、檔名、檔頭（file_header）</td></tr>
+              <tr><td>psychometric.csv</td><td>每人一筆（不隨時間變動）</td><td>OCEAN 五大人格分數</td></tr>
+              <tr><td>LDAP/</td><td>每月一份名冊（2009/12 – 2011/05）</td><td>職稱、部門、團隊、主管；員工從名冊消失即代表離職</td></tr>
+              <tr><td>answers/</td><td>每件事件的起訖時間</td><td>惡意員工 ID、情境編號（1～3）、事件逐筆明細</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card">
+          <h4>3 種惡意情境</h4>
+          <ul>
+            <li><b>情境 1｜外洩資料</b>：原本不加班、不用 USB 的員工，開始下班後登入、使用 USB，並把資料上傳到 wikileaks.org，不久後離職</li>
+            <li><b>情境 2｜跳槽前竊取資料</b>：開始瀏覽求職網站、向競爭對手求職，離職前用 USB 大量帶走資料</li>
+            <li><b>情境 3｜蓄意破壞</b>：心生不滿的系統管理員在主管電腦裝側錄程式，盜用主管帳號發送恐慌郵件後離職</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>OCEAN 五大人格量表</h4>
+          <div class="bar-row"><span>O 開放性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
+          <div class="bar-row"><span>C 盡責性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
+          <div class="bar-row"><span>E 外向性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
+          <div class="bar-row"><span>A 親和性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
+          <div class="bar-row"><span>N 神經質</span><div class="bar-track"><div class="bar-fill"></div></div></div>
+          <div class="axis"><div></div><div><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span></div></div>
+          <p style="margin-top:10px;font-size:.82rem">每項 10 題 × 1～5 分，分數範圍 10～50；分數越高傾向越強（如 N 高代表情緒較不穩定）。</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ═════════ 第一部分 ═════════ -->
+  <div class="panel" id="p-one">
+    <section>
+      <h2>第一部分：企業內員工異常行為儀表板</h2>
+      <p class="lead">把原始 log 清理成星狀模型，再用 Power BI 建構「由大到小」三層鑽研的異常分析儀表板。</p>
+
+      <h3 style="margin-top:28px">資料處理流程</h3>
+      <div class="flow">
+        <div class="fnode src">
+          <div class="step-no">來源</div>
+          <h4>CERT 原始 CSV</h4>
+          <p>5 類行為 log、心理測驗、每月 LDAP 名冊</p>
+        </div>
+        <div class="farrow"></div>
+        <div class="fnode">
+          <div class="step-no">STEP 1</div>
+          <h4>匯入 SQL Server</h4>
+          <p>資料量龐大，先取 2010/7/20～8/20 作為展示區間</p>
+        </div>
+        <div class="farrow"></div>
+        <div class="fnode">
+          <div class="step-no">STEP 2</div>
+          <h4>建立 View 表</h4>
+          <p>整理成事實表、維度表與各行為彙總表</p>
+          <div class="mini"><span>logon</span><span>device</span><span>http</span><span>email</span><span>file</span><span>psychometric</span><span>date</span></div>
+        </div>
+        <div class="farrow"></div>
+        <div class="fnode">
+          <div class="step-no">STEP 3</div>
+          <h4>離職狀態處理</h4>
+          <p>比對每月 LDAP 名冊，員工從名冊消失即推算為預計離職</p>
+        </div>
+        <div class="farrow"></div>
+        <div class="fnode end">
+          <div class="step-no">STEP 4</div>
+          <h4>Power BI 建模</h4>
+          <p>建立星狀模型與 DAX 量值，作為儀表板的資料基礎</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3>儀表板建置流程</h3>
+      <p class="lead" style="margin-bottom:16px">從全公司一路縮小到單一員工的單一行為，每一層都在回答不同的問題。</p>
+      <div class="build">
+        <div class="layer top">
+          <span class="lv">維度 ①</span>
+          <h4>全體員工</h4>
+          <div class="page">主儀表板</div>
+          <div class="look">看什麼</div>
+          <ul>
+            <li>當日 Top10 高風險員工與總異常數</li>
+            <li>異常員工的分佈部門</li>
+            <li>全員登入趨勢散佈圖，找出離群值</li>
+            <li>異常檔案複製列表</li>
+          </ul>
+        </div>
+        <div class="barrow"><span>點選員工</span><i></i></div>
+        <div class="layer">
+          <span class="lv">維度 ②</span>
+          <h4>單一員工</h4>
+          <div class="page">員工總覽頁</div>
+          <div class="look">看什麼</div>
+          <ul>
+            <li>時間區間內各行為異常數量</li>
+            <li>在職／預計離職狀態</li>
+            <li>判斷該往哪個行為深入看</li>
+          </ul>
+        </div>
+        <div class="barrow"><span>選擇行為</span><i></i></div>
+        <div class="layer">
+          <span class="lv">維度 ③</span>
+          <h4>單一員工 × 單一行為 × 與過去平均值比較 </h4>
+          <div class="page">行為明細頁</div>
+          <div class="look">看什麼</div>
+          <div class="behav">
+            <div><b>Logon / Logoff</b>登入時間分布、非工作時間登入</div>
+            <div><b>HTTP Domain</b>網域明細、不重複網域數 vs 平均</div>
+            <div><b>Email</b>外部收件人佔比、單信平均附件大小</div>
+            <div><b>File Copy</b>file_header 與檔名不符的疑似竄改</div>
+          </div>
+        </div>
+      </div>
+      <div class="callout">核心判斷：<b>時間區間內的當日狀態 vs 歷史平均值</b>，偏離越大越可疑。</div>
+    </section>
+
+    <section>
+      <h3>操作展示</h3>
+      <!-- 主展示影片：完整操作流程 -->
+      <div class="feature">
+        <div class="video" data-video="demo" data-title="儀表板完整操作展示"></div>
+        <div class="feature-caption">
+          <span><b style="color:var(--text);font-weight:500">完整操作展示</b>　從主儀表板鑽研到單一員工、單一行為</span>
+          <span>Power BI ・ 2010/7/20 – 8/20 展示區間</span>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3>各維度操作影片</h3>
+      <div class="seg" id="dimTabs">
+        <button class="active" data-dim="d-overview">① 全體員工</button>
+        <button data-dim="d-employee">② 單一員工</button>
+        <button data-dim="d-logon">③ 登入登出</button>
+        <button data-dim="d-http">③ 上網網域</button>
+        <button data-dim="d-email">③ Email</button>
+        <button data-dim="d-file">③ 檔案複製</button>
+      </div>
+
+      <div class="dim active" id="d-overview">
+        <div class="video" data-video="overview" data-title="主儀表板"></div>
+        <div class="grid g2 dim-info">
+          <div class="card"><h4>主儀表板｜全體員工維度</h4><p>每天打開的第一頁，快速掌握全公司狀況，再點選可疑員工往下鑽研。</p>
+            <p class="note">主儀表板目前為暫定版，待第二部分完成後替換為 ML 預測結果</p></div>
+          <div class="card"><h4>看什麼</h4><ul>
+            <li>當日 <b>Top10 高風險員工</b>與總異常數</li>
+            <li>今日異常員工的<b>分佈部門</b>與各行為異常數字</li>
+            <li>全員登入趨勢<b>散佈圖</b>找出離群值</li>
+            <li>異常檔案複製列表</li></ul></div>
+        </div>
+      </div>
+
+      <div class="dim" id="d-employee">
+        <div class="video" data-video="employee" data-title="員工總覽頁"></div>
+        <div class="grid g2 dim-info">
+          <div class="card"><h4>員工總覽頁｜單一員工維度</h4><p>由主儀表板點選員工鑽研進入，一頁看完這位員工的整體風險輪廓。</p></div>
+          <div class="card"><h4>看什麼</h4><ul>
+            <li>時間區間內<b>各行為異常數量</b></li>
+            <li><b>在職／預計離職</b>狀態（比對每月 LDAP 名冊推算）</li></ul></div>
+        </div>
+      </div>
+
+      <div class="dim" id="d-logon">
+        <div class="video" data-video="logon" data-title="Logon / Logoff"></div>
+        <div class="grid g2 dim-info">
+          <div class="card"><h4>Logon / Logoff｜登入登出</h4><p>找出非工作時間登入、異常時段存取等跡象。</p></div>
+          <div class="card"><h4>看什麼</h4><ul>
+            <li>時間區間內登入登出<b>明細</b></li>
+            <li>登入<b>時間分布</b></li>
+            <li>與過去平均值比較，確認是否偏離平日行為</li></ul></div>
+        </div>
+      </div>
+
+      <div class="dim" id="d-http">
+        <div class="video" data-video="http" data-title="HTTP Domain"></div>
+        <div class="grid g2 dim-info">
+          <div class="card"><h4>HTTP Domain｜上網網域</h4><p>觀察是否突然造訪大量陌生網域，或上網時段異常。</p></div>
+          <div class="card"><h4>看什麼</h4><ul>
+            <li>時間區間內上網<b>網域明細</b></li>
+            <li>上網時間與次數分布</li>
+            <li><b>不重複網域數</b> vs 平均值</li></ul></div>
+        </div>
+      </div>
+
+      <div class="dim" id="d-email">
+        <div class="video" data-video="email" data-title="Email"></div>
+        <div class="grid g2 dim-info">
+          <div class="card"><h4>Email｜電子郵件</h4><p>留意寄往外部的信件與附件量是否異常增加。</p></div>
+          <div class="card"><h4>看什麼</h4><ul>
+            <li>時間區間內寄信明細</li>
+            <li>一日內寄信<b>時間趨勢</b></li>
+            <li><b>外部收件人佔比</b>、<b>單信平均附件大小</b> vs 過去平均</li></ul></div>
+        </div>
+      </div>
+
+      <div class="dim" id="d-file">
+        <div class="video" data-video="file" data-title="File Copy"></div>
+        <div class="grid g2 dim-info">
+          <div class="card"><h4>File Copy｜檔案複製</h4><p>偵測大量複製與檔案偽裝，是資料外洩的關鍵訊號。</p></div>
+          <div class="card"><h4>看什麼</h4><ul>
+            <li>時間區間內<b>異常複製</b>明細</li>
+            <li>比對 <b>file_header 與實際檔名</b>，不符者視為疑似竄改</li>
+            <li>異常複製數 vs 過去平均</li></ul></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ═════════ 第二部分 ═════════ -->
+  <div class="panel" id="p-two">
+    <section>
+      <h2>第二部分：CERT 資料集監督式機器學習<span class="tag plan">內容產出中</span></h2>
+      <p class="lead">每日偵測員工行為維度，預測高風險員工，並把結果回寫主儀表板。完成後會陸續更新。</p>
+      <div class="grid g5">
+        <div class="card"><div class="step-no" style="color:var(--plan)">01</div><h4>資料清理</h4><p>Python 彙整 ML 行為標籤表（寬表）</p><span class="tag plan" style="margin:10px 0 0">待補</span></div>
+        <div class="card"><div class="step-no" style="color:var(--plan)">02</div><h4>模型訓練</h4><p>模型選擇與訓練</p><span class="tag plan" style="margin:10px 0 0">待補</span></div>
+        <div class="card"><div class="step-no" style="color:var(--plan)">03</div><h4>模型評估</h4><p>評估指標（Recall 等）</p><span class="tag plan" style="margin:10px 0 0">待補</span></div>
+        <div class="card"><div class="step-no" style="color:var(--plan)">04</div><h4>接回儀表板</h4><p>Top10 高風險員工回寫 Power BI 主儀表板</p><span class="tag plan" style="margin:10px 0 0">待補</span></div>
+        <div class="card"><div class="step-no" style="color:var(--plan)">05</div><h4>更新展示頁</h4><p>更新網頁與展示影片</p><span class="tag plan" style="margin:10px 0 0">待補</span></div>
+      </div>
+      <div class="progress"><div></div></div>
+      <p style="color:var(--muted);font-size:.85rem;margin-top:8px">進度 0 / 5</p>
+    </section>
+  </div>
+
+  <!-- ═════════ 未來應用 ═════════ -->
+  <div class="panel" id="p-future">
+    <section>
+      <h2>未來應用</h2>
+      <p class="lead">同一套「行為 log → 異常偵測 → 預警」的邏輯，可以延伸到更多場景。</p>
+      <div class="grid g3">
+        <div class="card"><h4>跨產業複用</h4><p>「從大維度到小維度」的儀表板邏輯，可套用到製造業異常檢測、流程異常分析，加速每日排查。</p></div>
+        <div class="card"><h4>提早預警</h4><p>以歷史資料建模，讓系統與工程師提早鎖定高風險族群，提早排除。</p></div>
+        <div class="card"><h4>AI 時代的新資料源</h4><p>企業導入內部 AI 後，AI 查詢 log 也能套用同一套系統——「誰在異常時段對 AI 工具大量查詢／貼上」，與 CERT 裡「誰在異常時段大量存取檔案」是同一類問題。</p></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<footer class="wrap">資料來源：CERT Insider Threat Dataset r4.2（合成資料，CC BY 4.0）</footer>
+
+<script>
+/* ─────────────────────────────────────────────
+   影片設定：把空字串換成影片網址即可自動顯示
+   - YouTube：貼一般網址即可，例 "https://youtu.be/xxxx"
+   - 本機影片：放進 videos/ 資料夾，例 "videos/demo.mp4"
+   ───────────────────────────────────────────── */
+const VIDEOS = {
+  demo: "",      // 主展示：完整操作流程
+  overview: "",  // ① 主儀表板
+  employee: "",  // ② 員工總覽頁
+  logon: "",     // ③ 登入登出
+  http: "",      // ③ 上網網域
+  email: "",     // ③ Email
+  file: "",      // ③ 檔案複製
+};
+
+// YouTube 網址轉成可嵌入的格式
+function youtubeEmbed(url) {
+  const m = url.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/);
+  return m ? `https://www.youtube.com/embed/${m[1]}` : null;
+}
+
+// 有網址就放播放器，沒有就顯示預留框
+document.querySelectorAll(".video").forEach(box => {
+  const src = VIDEOS[box.dataset.video];
+  const title = box.dataset.title;
+  if (!src) {
+    box.innerHTML = `<div class="empty"><div class="play"></div><b>${title} 操作影片</b><span>影片製作中，之後補上</span></div>`;
+  } else if (youtubeEmbed(src)) {
+    box.innerHTML = `<iframe src="${youtubeEmbed(src)}" title="${title}" allowfullscreen></iframe>`;
+  } else {
+    box.innerHTML = `<video src="${src}" controls preload="metadata"></video>`;
+  }
+});
+
+// 分頁切換（主分頁、維度分頁共用）
+function bindTabs(navId, attr, selector) {
+  const nav = document.getElementById(navId);
+  nav.addEventListener("click", e => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    nav.querySelectorAll("button").forEach(b => b.classList.toggle("active", b === btn));
+    document.querySelectorAll(selector).forEach(p => p.classList.toggle("active", p.id === btn.dataset[attr]));
+    // 切換時暫停其他正在播放的本機影片
+    document.querySelectorAll("video").forEach(v => { if (!v.closest(".active")) v.pause(); });
+  });
+}
+bindTabs("mainTabs", "panel", ".panel");
+bindTabs("dimTabs", "dim", ".dim");
+</script>
+</body>
+</html>
