@@ -1,2 +1,104 @@
-# threat-behavior-analysis
-Insider threat detection on CERT r4.2 — SQL Server ETL, Power BI anomaly dashboard, and ML-based daily high-risk employee prediction.
+# 內部異常行為偵測儀表板
+
+以 CERT r4.2 內部威脅資料集，從員工多個行為維度（登入登出／上網／裝置插拔／檔案複製／Email）建構異常分析儀表板，並結合機器學習每日預測高風險員工，及早預防內部資安事件。
+
+---
+
+## 專案框架
+
+本專案分為兩部分：**第一部分做「看得見異常」的儀表板，第二部分用 ML 做「預測誰有風險」**，最後把預測結果接回儀表板。
+
+```
+CERT r4.2 原始 CSV
+      │
+      ├─▶【第一部分】SQL Server ETL ─▶ Power BI 星狀模型 ─▶ 異常分析儀表板 ─▶ Streamlit UI
+      │                                                        ▲
+      └─▶【第二部分】Python 行為寬表 ─▶ 監督式 ML 模型 ─▶ Top10 高風險員工預測值 ─┘
+```
+
+| 項目 | 第一部分：員工異常行為儀表板（已完成） | 第二部分：CERT 監督式機器學習（規劃中） |
+|---|---|---|
+| 目的 | 透過多行為維度建構異常分析儀表板，及早預防員工異常資安事件 | 透過 ML 每日偵測高風險員工 |
+| 資料清理 | SQL Server ETL，產出 7 大事實與維度表、員工離職狀態表 | Python 彙整 ML 行為標籤表（寬表） |
+| 資料建模 | Power BI 建立星狀模型與量值、儀表板設計 | Power BI 主儀表板加入 Top10 高風險員工預測值 |
+| 視覺化介面 | Python Streamlit UI 設計 | 更新 Streamlit UI |
+| 版本備份 | GitHub 多分支備份 | GitHub 備份 |
+
+---
+
+## 背景文獻
+
+參考：Kamatchi, K. & Uma, E. (2025). *Insights into user behavioral-based insider threat detection: systematic review.* International Journal of Information Security, 24:88. (原文：hhttps://doi.org/10.1007/s10207-025-01002-6)
+
+- **為什麼要看「行為」？** 內部人員擁有合法權限，傳統特徵碼（signature-based）資安設備認不出「合法權限下的惡意操作」，因此以使用者行為為基礎的內部威脅偵測（UBITD）是企業的第一道防線。
+- **UBITD 監控的 8 大類日誌**：系統登入與存取、檔案與資料操作、抽取式裝置（USB）、網路與網頁瀏覽、電子郵件、鍵盤滑鼠動態、系統指令列、情緒與心理傾向（如 Big Five 人格量表）。
+- **成效**：在 CERT 等基準資料集上，結合 LSTM、SVM、ResHybnet 等模型，異常行為偵測召回率（Recall）可達 90%～99%。
+
+本專案涵蓋其中 6 類：登入登出、檔案、USB、上網、Email、心理測驗（OCEAN）。
+
+---
+
+## 資料集
+
+- **CERT Insider Threat Dataset r4.2**（[Kaggle](https://www.kaggle.com/datasets/andrihjonior/cert-insider-threat-dataset-r4-2/data)）：CMU CERT 製作的合成資料，因真實企業員工 log 過於敏感無法公開，故以模擬方式產生。
+- **內容**：虛構公司 1,000 名員工、約 17 個月（2009/12～2011/05）的數位足跡——登入登出、隨身碟插拔、上網、寄信、檔案複製，加上每人心理測驗分數與每月組織名冊（LDAP）。
+- **標籤**：內含 70 個惡意事件（3 種情境：離職前偷資料、販賣公司機密、蓄意破壞），正確答案存於 `answers/insiders.csv`。
+- **OCEAN 五大人格量表**：O 開放性／C 盡責性／E 外向性／A 親和性／N 神經質，每項 10～50 分，分數越高傾向越強（如 N 高代表情緒較不穩定）。
+
+---
+
+## 第一部分：企業內員工異常行為儀表板
+
+### 資料處理流程
+
+1. 將 CSV 匯入 SQL Server，整理事實表與維度表
+   - 因資料量龐大，先取 **2010/7/20～2010/8/20** 作為圖表展示區間
+2. 整理成 View 表：logon／email／http／file／device／psychometric／date、員工離職表，以及各自的彙總表（SQL 見 (./dataclean(sql)/)）
+3. 員工離職狀態處理：比對每月 LDAP 名冊推算在職／預計離職（邏輯見 (./dataclean(sql)/ldap-leave-status-logic.md)）
+4. 匯入 Power BI 建立星狀模型與量值
+
+### 儀表板設計邏輯（由大到小鑽研）
+
+| 層級 | 頁面 | 看什麼 |
+|---|---|---|
+| 全體員工 | 主儀表板 | 當日 Top10 高風險員工、總異常數、異常員工分佈部門；全員登入趨勢散佈圖找離群值、異常檔案複製列表 |
+| 單一員工 | 員工總覽頁 | 該員工各行為異常數量、在職／預計離職狀態（由主頁鑽研進入） |
+| 單一員工 × 單一行為 | Logon/off | 登入登出明細、時間分布，與過去平均比較 |
+| | HTTP Domain | 上網網域明細、時間與次數分布、不重複網域數 vs 平均值 |
+| | Email | 寄信明細、一日寄信時間分布、外部收件人佔比、單信平均附件大小 |
+| | File Copy | 異常複製明細；比對 file_header 與實際檔名，不符者視為疑似竄改 |
+
+> 核心判斷：**時間區間內的當日狀態 vs 歷史平均值**，偏離越大越可疑。
+> 主儀表板目前為暫定版，待第二部分完成後替換為 ML 預測結果。
+
+---
+
+## 第二部分：CERT 資料集監督式機器學習（ML）
+
+每日偵測員工行為維度，預測高風險員工。
+
+- 資料清理：Python 彙整 ML 行為標籤表（寬表）— **待補**
+- 模型選擇與訓練 — **待補**
+- 評估指標（Recall 等）— **待補**
+- 預測結果接回 Power BI 主儀表板（Top10 高風險員工）— **待補**
+- 更新 Streamlit UI — **待補**
+
+---
+
+## 未來應用
+
+- **跨產業複用**：「從大維度到小維度」的儀表板邏輯，可套用到製造業異常檢測、流程異常分析，加速每日排查。
+- **提早預警**：以歷史資料建模，讓系統與工程師提早鎖定高風險族群。
+- **AI 時代的新資料源**：企業導入內部 AI 後，AI 查詢 log 也能套用同一套預測系統——「誰在異常時段對 AI 工具大量查詢／貼上」，與 CERT 裡「誰在異常時段大量存取檔案」是同一類問題。
+
+---
+
+## 專案結構
+
+```
+_reference/        參考文獻
+archive/           CERT r4.2 原始資料（不進版本控制）
+dataclean(sql)/    SQL Server ETL 與離職狀態處理
+scripts/           Python ETL 程式碼
+behavior_powerBI_2.pbix   Power BI 儀表板
+
