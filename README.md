@@ -4,7 +4,50 @@
 
 ---
 
-## 專案框架
+## 背景文獻
+
+兩篇文獻串起本專案的出發點：**先用行為找出異常，再補上「人」的因素做事前預防。**
+
+### 文獻 1｜行為偵測
+
+Kamatchi, K. & Uma, E. (2025). *Insights into user behavioral-based insider threat detection: systematic review.* International Journal of Information Security, 24:88. [DOI](https://doi.org/10.1007/s10207-025-01002-6)
+
+- **為什麼要看「行為」？** 內部人員擁有合法權限，傳統特徵碼（signature-based）資安設備認不出「合法權限下的惡意操作」，因此以使用者行為為基礎的內部威脅偵測（UBITD）是企業的第一道防線。
+- **做法**：建立員工正常行為的基準線（baseline），持續監控存取模式、系統操作與網路瀏覽習慣，即時捕捉偏差行為與潛在的內部惡意操作。
+- **UBITD 監控的 8 大類日誌**：系統登入與存取、檔案與資料操作、抽取式裝置（USB）、網路與網頁瀏覽、電子郵件、鍵盤滑鼠動態、系統指令列、情緒與心理傾向（如 Big Five 人格量表）。
+- **成效**：在 CERT 等基準資料集上，結合 LSTM、SVM、ResHybnet 等模型，異常行為偵測召回率（Recall）可達 90%～99%。
+- 本專案涵蓋其中 6 類：登入登出、檔案、USB、上網、Email、心理測驗（OCEAN）。
+
+### 文獻 2｜行為偵測的局限
+
+Papatsaroucha, D., Psaroudaki, S., Vassilaki, E., et al. (2026). *Human Vulnerability Assessment in Cybersecurity: A Systematic Literature Review of Methods, Models, and Instruments.* arXiv:2605.22119. [PDF](https://arxiv.org/pdf/2605.22119)
+
+僅依賴行為偵測有其局限與挑戰：
+
+1. 屬於「風險顯現時」偵測，而非「事前預防」
+2. 無法洞察根本原因
+
+因此要達到真正的「事前預防」，不能只靠事後的行為異常監控，還需結合員工的**心理特徵、認知狀態與情境脈絡**，進行全面的人類脆弱性評估（Human Vulnerability Assessment, HVA）。
+
+> 所以本專案的資料集不只看「行為」，也要有「人」的資料——這正是下方 CERT r4.2 能提供的。
+---
+
+## 資料集
+
+- **CERT Insider Threat Dataset r4.2**（[Kaggle](https://www.kaggle.com/datasets/andrihjonior/cert-insider-threat-dataset-r4-2/data)）：CMU CERT 製作的合成資料，因真實企業員工 log 過於敏感無法公開，故以模擬方式產生。
+- **內容**：虛構公司 1,000 名員工、約 17 個月（2009/12～2011/05）的數位足跡——登入登出、隨身碟插拔、上網、寄信、檔案複製，加上每人心理測驗分數與每月組織名冊（LDAP）。
+- **標籤**：內含 70 個惡意事件（3 種情境：離職前偷資料、販賣公司機密、蓄意破壞），正確答案存於 `answers/insiders.csv`。
+- **OCEAN 五大人格量表**：O 開放性／C 盡責性／E 外向性／A 親和性／N 神經質，每項 10～50 分，分數越高傾向越強（如 N 高代表情緒較不穩定）。
+
+### 我們想用這份資料集做到兩件事
+
+1. **日常行為偵測**：以登入、USB、上網、Email、檔案複製等行為 log，建立員工基準線並偵測偏離（第一部分儀表板）。
+2. **事前預防機制**：加入機器學習模型，結合行為與人格特徵預測高風險員工（第二部分）。
+
+模擬資料集中包含 **OCEAN 五大人格量表**（`psychometric.csv`），可作為「人類脆弱性」的心理特徵一併納入模型訓練。
+---
+
+## 專案架構
 
 本專案分為兩部分：**第一部分做「看得見異常」的儀表板，第二部分用 ML 做「預測誰有風險」**，最後把預測結果接回儀表板。
 
@@ -26,35 +69,14 @@ CERT r4.2 原始 CSV
 
 ---
 
-## 背景文獻
-
-參考：Kamatchi, K. & Uma, E. (2025). *Insights into user behavioral-based insider threat detection: systematic review.* International Journal of Information Security, 24:88. (原文：hhttps://doi.org/10.1007/s10207-025-01002-6)
-
-- **為什麼要看「行為」？** 內部人員擁有合法權限，傳統特徵碼（signature-based）資安設備認不出「合法權限下的惡意操作」，因此以使用者行為為基礎的內部威脅偵測（UBITD）是企業的第一道防線。
-- **UBITD 監控的 8 大類日誌**：系統登入與存取、檔案與資料操作、抽取式裝置（USB）、網路與網頁瀏覽、電子郵件、鍵盤滑鼠動態、系統指令列、情緒與心理傾向（如 Big Five 人格量表）。
-- **成效**：在 CERT 等基準資料集上，結合 LSTM、SVM、ResHybnet 等模型，異常行為偵測召回率（Recall）可達 90%～99%。
-
-本專案涵蓋其中 6 類：登入登出、檔案、USB、上網、Email、心理測驗（OCEAN）。
-
----
-
-## 資料集
-
-- **CERT Insider Threat Dataset r4.2**（[Kaggle](https://www.kaggle.com/datasets/andrihjonior/cert-insider-threat-dataset-r4-2/data)）：CMU CERT 製作的合成資料，因真實企業員工 log 過於敏感無法公開，故以模擬方式產生。
-- **內容**：虛構公司 1,000 名員工、約 17 個月（2009/12～2011/05）的數位足跡——登入登出、隨身碟插拔、上網、寄信、檔案複製，加上每人心理測驗分數與每月組織名冊（LDAP）。
-- **標籤**：內含 70 個惡意事件（3 種情境：離職前偷資料、販賣公司機密、蓄意破壞），正確答案存於 `answers/insiders.csv`。
-- **OCEAN 五大人格量表**：O 開放性／C 盡責性／E 外向性／A 親和性／N 神經質，每項 10～50 分，分數越高傾向越強（如 N 高代表情緒較不穩定）。
-
----
-
 ## 第一部分：企業內員工異常行為儀表板
 
 ### 資料處理流程
 
 1. 將 CSV 匯入 SQL Server，整理事實表與維度表
    - 因資料量龐大，先取 **2010/7/20～2010/8/20** 作為圖表展示區間
-2. 整理成 View 表：logon／email／http／file／device／psychometric／date、員工離職表，以及各自的彙總表（SQL 見 (./dataclean(sql)/)）
-3. 員工離職狀態處理：比對每月 LDAP 名冊推算在職／預計離職（邏輯見 (./dataclean(sql)/ldap-leave-status-logic.md)）
+2. 整理成 View 表：logon／email／http／file／device／psychometric／date、員工離職表，以及各自的彙總表（SQL 見 [dataclean(sql)/](./dataclean%28sql%29/)）
+3. 員工離職狀態處理：比對每月 LDAP 名冊推算在職／預計離職（邏輯見 [ldap-leave-status-logic.md](./dataclean%28sql%29/ldap-leave-status-logic.md)）
 4. 匯入 Power BI 建立星狀模型與量值
 
 ### 儀表板設計邏輯（由大到小鑽研）
@@ -101,4 +123,4 @@ archive/           CERT r4.2 原始資料（不進版本控制）
 dataclean(sql)/    SQL Server ETL 與離職狀態處理
 scripts/           Python ETL 程式碼
 behavior_powerBI_2.pbix   Power BI 儀表板
-
+```
