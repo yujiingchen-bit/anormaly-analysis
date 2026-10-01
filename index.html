@@ -39,7 +39,7 @@
 body {
   margin: 0; background: var(--bg); color: var(--text);
   font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
-  line-height: 1.7; font-size: 16px;
+  line-height: 1.75; font-size: 18px;
 }
 .wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
 
@@ -63,9 +63,9 @@ nav.tabs button.active { color: var(--text); border-bottom-color: var(--accent);
 .panel { display: none; padding: 32px 0 64px; }
 .panel.active { display: block; }
 
-h2 { font-size: 1.4rem; margin: 0 0 6px; }
-h3 { font-size: 1.1rem; margin: 40px 0 14px; }
-.lead { color: var(--muted); margin: 0 0 20px; }
+h2 { font-size: 1.6rem; margin: 0 0 6px; }
+h3 { font-size: 1.25rem; margin: 40px 0 14px; }
+.lead { color: var(--muted); margin: 0 0 20px; font-size: 1.05rem; }
 section + section { margin-top: 48px; }
 
 /* ── 卡片與格線 ── */
@@ -77,8 +77,8 @@ section + section { margin-top: 48px; }
 .card {
   background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 20px 22px;
 }
-.card h4 { margin: 0 0 8px; font-size: 1rem; }
-.card p, .card li { color: var(--muted); font-size: .92rem; margin: 0; }
+.card h4 { margin: 0 0 8px; font-size: 1.15rem; }
+.card p, .card li { color: var(--muted); font-size: 1.02rem; margin: 0; }
 .card ul { margin: 0; padding-left: 18px; }
 .card ul li + li { margin-top: 4px; }
 .card b { color: var(--text); font-weight: 500; }
@@ -110,9 +110,9 @@ section + section { margin-top: 48px; }
 
 /* ── 資料集數字 ── */
 .stat { font-size: 1.8rem; font-weight: 700; line-height: 1.2; color: var(--text); }
-.stat-label { color: var(--muted); font-size: .85rem; }
+.stat-label { color: var(--muted); font-size: 1rem; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { padding: 5px 14px; border-radius: 8px; font-size: .9rem; border: 1px solid var(--line); color: var(--muted); }
+.chip { padding: 5px 14px; border-radius: 8px; font-size: 1rem; border: 1px solid var(--line); color: var(--muted); }
 .chip.on { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 500; }
 .bar-row { display: grid; grid-template-columns: 88px 1fr; align-items: center; gap: 10px; font-size: .88rem; margin: 6px 0; }
 .bar-track { position: relative; height: 10px; background: var(--line); border-radius: 5px; }
@@ -138,6 +138,21 @@ section + section { margin-top: 48px; }
   border-left: 16px solid var(--line); border-top: 11px solid transparent; border-bottom: 11px solid transparent;
 }
 .video .empty b { color: var(--text); font-weight: 500; }
+/* 資料處理流程下方的並排圖片 */
+.figs { margin-top: 20px; }
+.figs figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.figs figure.wide { grid-column: 1 / -1; width: 100%; max-width: 760px; justify-self: center; }
+.figs img { display: block; width: 100%; height: auto; border-radius: 8px; }
+.figs figcaption { margin-top: 10px; color: var(--muted); font-size: .88rem; text-align: center; }
+
+/* 各維度截圖框 */
+.shot { border-radius: 12px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); }
+.shot img { display: block; width: 100%; height: auto; }
+.shot .empty-box {
+  aspect-ratio: 16 / 9; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--muted); border: 2px dashed var(--line); border-radius: 12px; margin: 14px; aspect-ratio: auto; min-height: 260px;
+}
+.shot .empty-box b { color: var(--text); font-weight: 500; }
 .feature { margin-bottom: 8px; }
 .feature-caption { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 12px; color: var(--muted); font-size: .92rem; }
 
@@ -154,7 +169,7 @@ section + section { margin-top: 48px; }
 .note { margin-top: 10px; font-size: .85rem; color: var(--plan); }
 
 /* ── 資料表格 ── */
-table.data { width: 100%; border-collapse: collapse; font-size: .9rem; }
+table.data { width: 100%; border-collapse: collapse; font-size: 1rem; }
 table.data th, table.data td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
 table.data th { color: var(--muted); font-weight: 500; font-size: .82rem; }
 table.data td:first-child { white-space: nowrap; font-weight: 500; }
@@ -231,7 +246,104 @@ a { color: var(--accent); }
   <!-- ═════════ 專案框架 ═════════ -->
   <div class="panel active" id="p-frame">
     <section>
-      <h2>整體專案框架</h2>
+      <h2>背景文獻：為什麼要看「行為」？又為什麼不能只看行為？</h2>
+      <p class="lead">兩篇文獻串起本專案的出發點：先用行為找出異常，再補上「人」的因素做事前預防。</p>
+      <div class="grid g2">
+        <div class="card">
+          <span class="step-no">文獻 1｜行為偵測</span>
+          <h4 style="margin-top:6px">以使用者行為為基礎的內部威脅偵測（UBITD）</h4>
+          <p>內部人員擁有合法權限，傳統特徵碼資安設備認不出「合法權限下的惡意操作」。UBITD 先建立員工正常行為的基準線（baseline），持續監控存取模式、系統操作與網路瀏覽習慣，即時捕捉偏差行為與潛在的內部惡意操作。在 CERT 等資料集上，結合 LSTM、SVM 等模型，召回率（Recall）可達 90%～99%。</p>
+          <div class="chips" style="margin-top:12px">
+            <span class="chip on">登入登出</span><span class="chip on">檔案操作</span><span class="chip on">USB 裝置</span>
+            <span class="chip on">網頁瀏覽</span><span class="chip on">電子郵件</span><span class="chip on">心理傾向（OCEAN）</span>
+            <span class="chip">鍵盤滑鼠動態</span><span class="chip">系統指令列</span>
+          </div>
+          <p style="margin-top:6px;font-size:.9rem">UBITD 監控 8 大類日誌，藍底為本專案涵蓋的 6 類</p>
+          <p style="margin-top:12px;font-size:.92rem">Kamatchi, K. &amp; Uma, E. (2025). Insights into user behavioral-based insider threat detection: systematic review. <i>International Journal of Information Security</i>, 24:88. <a href="https://doi.org/10.1007/s10207-025-01002-6" target="_blank" rel="noopener">DOI</a></p>
+        </div>
+        <div class="card">
+          <span class="step-no" style="color:var(--plan)">文獻 2｜行為偵測的局限</span>
+          <h4 style="margin-top:6px">人類脆弱性評估（HVA）</h4>
+          <p>僅依賴行為偵測有其局限與挑戰：</p>
+          <ul style="margin:8px 0">
+            <li><b>屬於「風險顯現時」偵測</b>，而非「事前預防」</li>
+            <li><b>無法洞察根本原因</b></li>
+          </ul>
+          <p>因此要達到真正的「事前預防」，不能只靠事後的行為異常監控，還需結合員工的<b>心理特徵、認知狀態與情境脈絡</b>，進行全面的人類脆弱性評估（Human Vulnerability Assessment, HVA）。</p>
+          <p style="margin-top:12px;font-size:.92rem">Papatsaroucha, D., Psaroudaki, S., Vassilaki, E., et al. (2026). Human Vulnerability Assessment in Cybersecurity: A Systematic Literature Review of Methods, Models, and Instruments. arXiv:2605.22119. <a href="https://arxiv.org/pdf/2605.22119" target="_blank" rel="noopener">PDF</a></p>
+        </div>
+      </div>
+      <div class="callout">所以本專案的資料集不只看「行為」，也要有「人」的資料——這正是下方 CERT r4.2 能提供的。</div>
+    </section>
+
+
+    <section>
+      <h2>資料集介紹</h2>
+      <p class="lead">CERT Insider Threat r4.2 是 CMU CERT 製作的合成資料。真實企業員工 log 過於敏感無法公開，因此以模擬方式產生。<a href="https://www.kaggle.com/datasets/andrihjonior/cert-insider-threat-dataset-r4-2/data" target="_blank" rel="noopener">Kaggle 資料集</a></p>
+      <div class="grid g4">
+        <div class="card"><div class="stat">1,000</div><div class="stat-label">模擬員工</div></div>
+        <div class="card"><div class="stat">17 個月</div><div class="stat-label">2009/12 – 2011/05</div></div>
+        <div class="card"><div class="stat">70</div><div class="stat-label">惡意事件</div></div>
+        <div class="card"><div class="stat">3</div><div class="stat-label">惡意情境劇本</div></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h4>資料內容與紀錄時間點</h4>
+        <p style="margin-bottom:12px">5 類行為 log 每一筆都記錄到「秒」，並標註是哪位員工、在哪台電腦上的操作。</p>
+        <div class="table-scroll">
+          <table class="data">
+            <thead><tr><th>檔案</th><th>紀錄時間點</th><th>每筆紀錄內容</th></tr></thead>
+            <tbody>
+              <tr><td>logon.csv</td><td>每次登入／登出（精確到秒）</td><td>員工 ID、電腦 ID、動作（Logon / Logoff）</td></tr>
+              <tr><td>device.csv</td><td>每次插拔 USB（精確到秒）</td><td>員工 ID、電腦 ID、動作（Connect / Disconnect）</td></tr>
+              <tr><td>http.csv</td><td>每次瀏覽網頁（精確到秒）</td><td>員工 ID、電腦 ID、網址、網頁內容關鍵字</td></tr>
+              <tr><td>email.csv</td><td>每封寄出的信（精確到秒）</td><td>寄件人、收件人（to / cc / bcc）、信件大小、附件數</td></tr>
+              <tr><td>file.csv</td><td>每次複製檔案到 USB（精確到秒）</td><td>員工 ID、電腦 ID、檔名、檔頭（file_header）</td></tr>
+              <tr><td>psychometric.csv</td><td>每人一筆（不隨時間變動）</td><td>OCEAN 五大人格分數</td></tr>
+              <tr><td>LDAP/</td><td>每月一份名冊（2009/12 – 2011/05）</td><td>職稱、部門、團隊、主管；員工從名冊消失即代表離職</td></tr>
+              <tr><td>answers/</td><td>每件事件的起訖時間</td><td>惡意員工 ID、情境編號（1～3）、事件逐筆明細</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="grid g2" style="margin-top:16px">
+        <div class="card">
+          <h4>3 種惡意情境</h4>
+          <ul>
+            <li><b>情境 1｜外洩資料</b>：原本不加班、不用 USB 的員工，開始下班後登入、使用 USB，並把資料上傳到 wikileaks.org，不久後離職</li>
+            <li><b>情境 2｜跳槽前竊取資料</b>：開始瀏覽求職網站、向競爭對手求職，離職前用 USB 大量帶走資料</li>
+            <li><b>情境 3｜蓄意破壞</b>：心生不滿的系統管理員在主管電腦裝側錄程式，盜用主管帳號發送恐慌郵件後離職</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h4>OCEAN 五大人格量表</h4>
+          <div class="bar-row"><span>O 開放性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
+          <div class="bar-row"><span>C 盡責性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
+          <div class="bar-row"><span>E 外向性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
+          <div class="bar-row"><span>A 親和性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
+          <div class="bar-row"><span>N 神經質</span><div class="bar-track"><div class="bar-fill"></div></div></div>
+          <div class="axis"><div></div><div><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span></div></div>
+          <p style="margin-top:10px;font-size:.92rem">每項 10 題 × 1～5 分，分數範圍 10～50；分數越高傾向越強（如 N 高代表情緒較不穩定）。</p>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h4>我們想用這份資料集做到兩件事</h4>
+        <div class="grid g2" style="margin-top:12px">
+          <div>
+            <div class="step-no">目標 1</div>
+            <p><b>日常行為偵測</b>：以登入、USB、上網、Email、檔案複製等行為 log，建立員工基準線並偵測偏離（第一部分儀表板）。</p>
+          </div>
+          <div>
+            <div class="step-no" style="color:var(--plan)">目標 2</div>
+            <p><b>事前預防機制</b>：加入機器學習模型，結合行為與人格特徵預測高風險員工（第二部分）。</p>
+          </div>
+        </div>
+        <p style="margin-top:14px;font-size:1rem">模擬資料集中包含 <b>OCEAN 五大人格量表</b>（psychometric.csv），可作為「人類脆弱性」的心理特徵一併納入模型訓練。</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>專案架構</h2>
       <p class="lead">第一部分做「看得見異常」的儀表板，第二部分用機器學習做「預測誰有風險」，最後把預測結果回寫到主儀表板。</p>
 
       <div class="diagram">
@@ -372,70 +484,6 @@ a { color: var(--accent); }
         </div>
       </div>
     </section>
-
-    <section>
-      <h2>背景文獻：為什麼要看「行為」？</h2>
-      <p class="lead">內部人員擁有合法權限，傳統特徵碼資安設備認不出「合法權限下的惡意操作」，因此以使用者行為為基礎的內部威脅偵測（UBITD）是企業的第一道防線。在 CERT 等資料集上，結合 LSTM、SVM 等模型，召回率（Recall）可達 90%～99%。</p>
-      <div class="card">
-        <h4>UBITD 監控 8 大類日誌<span style="color:var(--muted);font-weight:400;font-size:.85rem">　藍底為本專案涵蓋的 6 類</span></h4>
-        <div class="chips" style="margin-top:12px">
-          <span class="chip on">登入登出</span><span class="chip on">檔案操作</span><span class="chip on">USB 裝置</span>
-          <span class="chip on">網頁瀏覽</span><span class="chip on">電子郵件</span><span class="chip on">心理傾向（OCEAN）</span>
-          <span class="chip">鍵盤滑鼠動態</span><span class="chip">系統指令列</span>
-        </div>
-        <p style="margin-top:16px;font-size:.82rem">Kamatchi, K. &amp; Uma, E. (2025). Insights into user behavioral-based insider threat detection: systematic review. <i>International Journal of Information Security</i>, 24:88. <a href="https://doi.org/10.1007/s10207-025-01002-6" target="_blank" rel="noopener">DOI</a></p>
-      </div>
-    </section>
-
-    <section>
-      <h2>資料集介紹</h2>
-      <p class="lead">CERT Insider Threat r4.2 是 CMU CERT 製作的合成資料。真實企業員工 log 過於敏感無法公開，因此以模擬方式產生。<a href="https://www.kaggle.com/datasets/andrihjonior/cert-insider-threat-dataset-r4-2/data" target="_blank" rel="noopener">Kaggle 資料集</a></p>
-      <div class="grid g4">
-        <div class="card"><div class="stat">1,000</div><div class="stat-label">模擬員工</div></div>
-        <div class="card"><div class="stat">17 個月</div><div class="stat-label">2009/12 – 2011/05</div></div>
-        <div class="card"><div class="stat">70</div><div class="stat-label">惡意事件</div></div>
-        <div class="card"><div class="stat">3</div><div class="stat-label">惡意情境劇本</div></div>
-      </div>
-      <div class="card" style="margin-top:16px">
-        <h4>資料內容與紀錄時間點</h4>
-        <p style="margin-bottom:12px">5 類行為 log 每一筆都記錄到「秒」，並標註是哪位員工、在哪台電腦上的操作。</p>
-        <div class="table-scroll">
-          <table class="data">
-            <thead><tr><th>檔案</th><th>紀錄時間點</th><th>每筆紀錄內容</th></tr></thead>
-            <tbody>
-              <tr><td>logon.csv</td><td>每次登入／登出（精確到秒）</td><td>員工 ID、電腦 ID、動作（Logon / Logoff）</td></tr>
-              <tr><td>device.csv</td><td>每次插拔 USB（精確到秒）</td><td>員工 ID、電腦 ID、動作（Connect / Disconnect）</td></tr>
-              <tr><td>http.csv</td><td>每次瀏覽網頁（精確到秒）</td><td>員工 ID、電腦 ID、網址、網頁內容關鍵字</td></tr>
-              <tr><td>email.csv</td><td>每封寄出的信（精確到秒）</td><td>寄件人、收件人（to / cc / bcc）、信件大小、附件數</td></tr>
-              <tr><td>file.csv</td><td>每次複製檔案到 USB（精確到秒）</td><td>員工 ID、電腦 ID、檔名、檔頭（file_header）</td></tr>
-              <tr><td>psychometric.csv</td><td>每人一筆（不隨時間變動）</td><td>OCEAN 五大人格分數</td></tr>
-              <tr><td>LDAP/</td><td>每月一份名冊（2009/12 – 2011/05）</td><td>職稱、部門、團隊、主管；員工從名冊消失即代表離職</td></tr>
-              <tr><td>answers/</td><td>每件事件的起訖時間</td><td>惡意員工 ID、情境編號（1～3）、事件逐筆明細</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="grid g2" style="margin-top:16px">
-        <div class="card">
-          <h4>3 種惡意情境</h4>
-          <ul>
-            <li><b>情境 1｜外洩資料</b>：原本不加班、不用 USB 的員工，開始下班後登入、使用 USB，並把資料上傳到 wikileaks.org，不久後離職</li>
-            <li><b>情境 2｜跳槽前竊取資料</b>：開始瀏覽求職網站、向競爭對手求職，離職前用 USB 大量帶走資料</li>
-            <li><b>情境 3｜蓄意破壞</b>：心生不滿的系統管理員在主管電腦裝側錄程式，盜用主管帳號發送恐慌郵件後離職</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h4>OCEAN 五大人格量表</h4>
-          <div class="bar-row"><span>O 開放性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
-          <div class="bar-row"><span>C 盡責性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
-          <div class="bar-row"><span>E 外向性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
-          <div class="bar-row"><span>A 親和性</span><div class="bar-track"><div class="bar-fill"></div></div></div>
-          <div class="bar-row"><span>N 神經質</span><div class="bar-track"><div class="bar-fill"></div></div></div>
-          <div class="axis"><div></div><div><span>0</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span></div></div>
-          <p style="margin-top:10px;font-size:.82rem">每項 10 題 × 1～5 分，分數範圍 10～50；分數越高傾向越強（如 N 高代表情緒較不穩定）。</p>
-        </div>
-      </div>
-    </section>
   </div>
 
   <!-- ═════════ 第一部分 ═════════ -->
@@ -476,6 +524,22 @@ a { color: var(--accent); }
           <h4>Power BI 建模</h4>
           <p>建立星狀模型與 DAX 量值，作為儀表板的資料基礎</p>
         </div>
+      </div>
+
+      <!-- 流程對應畫面：SQL Server 與 Power BI 模型 -->
+      <div class="grid g2 figs">
+        <figure>
+          <img src="video_image/SQLserver.png" alt="SQL Server 的資料表與 View">
+          <figcaption>SQL Server：整理後的事實表與維度表 View</figcaption>
+        </figure>
+        <figure>
+          <img src="video_image/modelinPBI.png" alt="Power BI 星狀模型">
+          <figcaption>Power BI：星狀模型（員工 × 日期 串接）</figcaption>
+        </figure>
+        <figure class="wide">
+          <img src="video_image/leave.png" alt="離職表的處理方式">
+          <figcaption>離職表的處理方式：比對每月 LDAP 名冊，員工從名冊消失即推算為預計離職</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -537,7 +601,7 @@ a { color: var(--accent); }
     </section>
 
     <section>
-      <h3>各維度操作影片</h3>
+      <h3>各維度畫面</h3>
       <div class="seg" id="dimTabs">
         <button class="active" data-dim="d-overview">① 全體員工</button>
         <button data-dim="d-employee">② 單一員工</button>
@@ -548,7 +612,7 @@ a { color: var(--accent); }
       </div>
 
       <div class="dim active" id="d-overview">
-        <div class="video" data-video="overview" data-title="主儀表板"></div>
+        <div class="shot" data-shot="overview" data-title="主儀表板"></div>
         <div class="grid g2 dim-info">
           <div class="card"><h4>主儀表板｜全體員工維度</h4><p>每天打開的第一頁，快速掌握全公司狀況，再點選可疑員工往下鑽研。</p>
             <p class="note">主儀表板目前為暫定版，待第二部分完成後替換為 ML 預測結果</p></div>
@@ -561,7 +625,7 @@ a { color: var(--accent); }
       </div>
 
       <div class="dim" id="d-employee">
-        <div class="video" data-video="employee" data-title="員工總覽頁"></div>
+        <div class="shot" data-shot="employee" data-title="員工總覽頁"></div>
         <div class="grid g2 dim-info">
           <div class="card"><h4>員工總覽頁｜單一員工維度</h4><p>由主儀表板點選員工鑽研進入，一頁看完這位員工的整體風險輪廓。</p></div>
           <div class="card"><h4>看什麼</h4><ul>
@@ -571,7 +635,7 @@ a { color: var(--accent); }
       </div>
 
       <div class="dim" id="d-logon">
-        <div class="video" data-video="logon" data-title="Logon / Logoff"></div>
+        <div class="shot" data-shot="logon" data-title="Logon / Logoff"></div>
         <div class="grid g2 dim-info">
           <div class="card"><h4>Logon / Logoff｜登入登出</h4><p>找出非工作時間登入、異常時段存取等跡象。</p></div>
           <div class="card"><h4>看什麼</h4><ul>
@@ -582,7 +646,7 @@ a { color: var(--accent); }
       </div>
 
       <div class="dim" id="d-http">
-        <div class="video" data-video="http" data-title="HTTP Domain"></div>
+        <div class="shot" data-shot="http" data-title="HTTP Domain"></div>
         <div class="grid g2 dim-info">
           <div class="card"><h4>HTTP Domain｜上網網域</h4><p>觀察是否突然造訪大量陌生網域，或上網時段異常。</p></div>
           <div class="card"><h4>看什麼</h4><ul>
@@ -593,7 +657,7 @@ a { color: var(--accent); }
       </div>
 
       <div class="dim" id="d-email">
-        <div class="video" data-video="email" data-title="Email"></div>
+        <div class="shot" data-shot="email" data-title="Email"></div>
         <div class="grid g2 dim-info">
           <div class="card"><h4>Email｜電子郵件</h4><p>留意寄往外部的信件與附件量是否異常增加。</p></div>
           <div class="card"><h4>看什麼</h4><ul>
@@ -604,7 +668,7 @@ a { color: var(--accent); }
       </div>
 
       <div class="dim" id="d-file">
-        <div class="video" data-video="file" data-title="File Copy"></div>
+        <div class="shot" data-shot="file" data-title="File Copy"></div>
         <div class="grid g2 dim-info">
           <div class="card"><h4>File Copy｜檔案複製</h4><p>偵測大量複製與檔案偽裝，是資料外洩的關鍵訊號。</p></div>
           <div class="card"><h4>看什麼</h4><ul>
@@ -656,13 +720,17 @@ a { color: var(--accent); }
    - 本機影片：放進 videos/ 資料夾，例 "videos/demo.mp4"
    ───────────────────────────────────────────── */
 const VIDEOS = {
-  demo: "",      // 主展示：完整操作流程
-  overview: "video/overview.mp4",  // ① 主儀表板
-  employee: "",  // ② 員工總覽頁
-  logon: "",     // ③ 登入登出
-  http: "",      // ③ 上網網域
-  email: "",     // ③ Email
-  file: "",      // ③ 檔案複製
+  demo: "video_image/demo.mp4",      // 主展示：完整操作流程（目前只有這一支影片）
+};
+
+/* 各維度截圖：圖片放在 video_image/ 資料夾，填路徑即可；留空會顯示預留框 */
+const SHOTS = {
+  overview: "video_image/overview.png",  // ① 全體員工
+  employee: "video_image/employee.png",  // ② 單一員工
+  logon: "video_image/login.png",        // ③ 登入登出
+  http: "video_image/http.png",          // ③ 上網網域
+  email: "video_image/email.png",        // ③ Email
+  file: "video_image/file.png",          // ③ 檔案複製
 };
 
 // YouTube 網址轉成可嵌入的格式
@@ -682,6 +750,17 @@ document.querySelectorAll(".video").forEach(box => {
     box.innerHTML = `<iframe src="${youtubeEmbed(src)}" title="${title}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
   } else {
     box.innerHTML = `<video src="${src}" controls preload="metadata"></video>`;
+  }
+});
+
+// 有截圖就放圖片，沒有就顯示預留框
+document.querySelectorAll(".shot").forEach(box => {
+  const src = SHOTS[box.dataset.shot];
+  const title = box.dataset.title;
+  if (!src) {
+    box.innerHTML = `<div class="empty-box"><b>${title} 截圖</b><span>截圖整理中，之後補上</span></div>`;
+  } else {
+    box.innerHTML = `<img src="${src}" alt="${title}">`;
   }
 });
 
