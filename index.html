@@ -657,7 +657,7 @@ a { color: var(--accent); }
    ───────────────────────────────────────────── */
 const VIDEOS = {
   demo: "",      // 主展示：完整操作流程
-  overview: "https://youtu.be/tZKYIu0D8dE?si=cgH27yOFVZ6UPJCA",  // ① 主儀表板
+  overview: "video/overview.mp4",  // ① 主儀表板
   employee: "",  // ② 員工總覽頁
   logon: "",     // ③ 登入登出
   http: "",      // ③ 上網網域
@@ -678,7 +678,8 @@ document.querySelectorAll(".video").forEach(box => {
   if (!src) {
     box.innerHTML = `<div class="empty"><div class="play"></div><b>${title} 操作影片</b><span>影片製作中，之後補上</span></div>`;
   } else if (youtubeEmbed(src)) {
-    box.innerHTML = `<iframe src="${youtubeEmbed(src)}" title="${title}" allowfullscreen></iframe>`;
+    // referrerpolicy：YouTube 要求嵌入時要帶來源網址，否則會出現錯誤 153
+    box.innerHTML = `<iframe src="${youtubeEmbed(src)}" title="${title}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
   } else {
     box.innerHTML = `<video src="${src}" controls preload="metadata"></video>`;
   }
