@@ -137,7 +137,7 @@ CERT r4.2 原始 CSV
 
 此框架的邏輯——**建立個人基準線、偵測偏離、以人為單位評估成效**——也可延伸至其他異常分析領域，例如金融交易盜刷偵測、醫療保險詐領、電商帳號盜用等。
 
-> 第二部分的文獻研討與執行規劃詳見 [MachineLearning 分支的 MLreadme.md](https://github.com/yujiingchen-bit/threat-behavior-analysis/blob/MachineLearning/MachineLearning/MLreadme.md)。
+> 第二部分的文獻研討與執行規劃詳見 [MachineLearning/MLreadme.md](MachineLearning/MLreadme.md)。
 
 ---
 
