@@ -88,9 +88,9 @@ b, strong { font-weight: 600; }
 
 /* ── 區塊 ── */
 .sec { padding: 80px 0 0; }
-.sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 6px; }
-.sec-no { font-size: .8rem; font-weight: 700; color: var(--accent); letter-spacing: .14em; }
-.sec h2 { font-size: 1.7rem; margin: 0 0 8px; letter-spacing: -.01em; line-height: 1.35; }
+.sec-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 10px; }
+.sec-no { font-size: 2rem; font-weight: 700; color: var(--accent); letter-spacing: .02em; line-height: 1.2; }
+.sec h2 { font-size: 1.2rem; font-weight: 600; margin: 0 0 8px; line-height: 1.45; }
 .sec .lead { color: var(--muted); margin: 0 0 26px; max-width: 820px; }
 .grid { display: grid; gap: 16px; }
 .g2 { grid-template-columns: repeat(2, 1fr); }
@@ -104,6 +104,8 @@ b, strong { font-weight: 600; }
 .meta { font-size: .75rem; color: var(--accent); margin-bottom: 6px; font-weight: 700; letter-spacing: .12em; }
 .note { color: var(--muted); font-size: .9rem; margin-top: 14px; }
 .sub-h { font-size: 1.05rem; font-weight: 700; margin: 40px 0 14px; }
+.demo-head { scroll-margin-top: 80px; margin-top: 56px; }
+.demo-head .sub-h { font-size: 1.15rem; margin: 0 0 8px; }
 
 /* 目的 */
 .why { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
@@ -121,24 +123,7 @@ b, strong { font-weight: 600; }
 .data-row span.s { padding: 4px 12px; border-radius: 999px; background: var(--bad-soft); color: var(--bad); font-weight: 600; }
 
 /* 架構圖 */
-.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; overflow-x: auto; }
-.diagram svg { display: block; width: 100%; min-width: 880px; height: auto; }
-.diagram text { font-family: inherit; fill: var(--text); }
-.diagram .t-title { font-size: 19px; font-weight: 700; }
-.diagram .t-body { font-size: 15px; fill: var(--muted); }
-.diagram .t-head { font-size: 15px; font-weight: 700; fill: var(--muted); letter-spacing: .12em; }
-.diagram .t-lane { font-size: 15px; font-weight: 700; letter-spacing: .04em; }
-.diagram .node { fill: var(--surface); stroke: var(--line); stroke-width: 1.2; }
-.diagram .node-ml { fill: var(--surface); stroke: var(--plan); stroke-width: 1.3; }
-.diagram .node-key { fill: var(--accent); stroke: var(--accent); }
-.diagram .node-key + text, .diagram .on-key { fill: var(--accent-ink); }
-.diagram .lane1 { fill: var(--bg-alt); }
-.diagram .lane2 { fill: var(--plan-soft); }
-.diagram .arrow { stroke: var(--muted); stroke-width: 1.5; fill: none; }
-.diagram .arrow-ml { stroke: var(--plan); stroke-width: 1.5; fill: none; }
-
-/* 方法 */
-.method { display: grid; grid-template-columns: 2fr 3fr 1.1fr; gap: 14px; }
+.method { display: grid; grid-template-columns: 2fr 4fr 1.1fr; gap: 14px; }
 .track-lbl { font-size: .78rem; font-weight: 700; letter-spacing: .1em; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
 .track-lbl i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
 .steps { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 10px; }
@@ -152,6 +137,22 @@ b, strong { font-weight: 600; }
 .t-ml .track-lbl { color: var(--plan); } .t-ml .track-lbl i { background: var(--plan); }
 .t-ml .step { background: var(--plan-soft); }
 .t-ml .step .why::before { color: var(--plan); }
+/* 流程線條 */
+.handoff { position: absolute; left: -30px; top: calc(50% - 26px); font-size: .66rem; font-weight: 700; letter-spacing: .06em; color: var(--plan); }
+.t-out .step p .file { display: inline-block; margin: 2px 0; padding: 1px 7px; border-radius: 6px; font-family: ui-monospace, Consolas, monospace; font-size: .8rem; font-weight: 600; background: color-mix(in srgb, var(--accent-ink) 18%, transparent); color: var(--accent-ink); }
+.track-lbl::after { content: ""; flex: 1; height: 2px; border-radius: 2px; background: currentColor; opacity: .35; }
+.steps { gap: 22px; }
+.steps .step:not(:last-child)::after { content: ""; position: absolute; right: -17px; top: 50%; width: 12px; height: 12px; transform: translateY(-50%); background: currentColor; clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.t-bi .step::after { color: var(--accent); } .t-ml .step::after { color: var(--plan); }
+.method { column-gap: 30px; }
+.t-out .step::before { content: ""; position: absolute; left: -22px; top: 50%; width: 14px; height: 14px; transform: translateY(-50%); background: var(--text); clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.wt-viz { margin-top: 10px; display: grid; gap: 5px; font-size: .72rem; color: var(--muted); }
+.wt-viz .r { display: grid; grid-template-columns: 52px 1fr; align-items: end; gap: 6px; }
+.wt-viz .b { display: flex; align-items: flex-end; gap: 2px; height: 22px; }
+.wt-viz .b i { flex: 1; height: 5px; background: var(--plan); border-radius: 1px; opacity: .55; }
+.wt-viz .b.a i { flex: 0 0 12%; opacity: 1; }
+.wt-viz .eq { text-align: right; color: var(--plan); font-weight: 700; }
+
 .t-out .track-lbl { color: var(--text); } .t-out .track-lbl i { background: var(--text); }
 .t-out .step { background: var(--accent); color: var(--accent-ink); }
 .t-out .step p, .t-out .step .tool, .t-out .step .why { color: var(--accent-ink); }
@@ -261,25 +262,7 @@ table.lt td.ok { color: var(--accent); font-weight: 700; }
 .hero-card .meta, .hero-card p, .hero-card h3 { color: var(--accent-ink); }
 .hero-card h3 { font-size: 1.35rem; }
 .hero-card p { opacity: .92; font-size: 1rem; }
-.auto { display: grid; grid-template-columns: 1.5fr 40px 1fr 40px 1.1fr; align-items: stretch; }
-.auto-grp, .auto-mid { border-radius: 16px; padding: 20px; }
-.auto-grp { background: var(--bg-alt); }
-.auto-grp.pbi { background: var(--accent); color: var(--accent-ink); display: flex; flex-direction: column; }
-.auto-mid { border: 2px dashed var(--line); display: flex; flex-direction: column; justify-content: center; text-align: center; }
-.auto-mid small { color: var(--muted); font-size: .82rem; }
-.auto .lbl { font-size: .8rem; color: var(--muted); margin-bottom: 12px; }
-.auto .lbl span { display: block; font-size: 1.12rem; font-weight: 700; color: var(--text); }
-.auto-mid .lbl span { font-size: .75rem; letter-spacing: .12em; color: var(--accent); }
-.auto-grp.pbi .lbl, .auto-grp.pbi .lbl span { color: var(--accent-ink); }
-.pbi-list { display: grid; gap: 8px; }
-.pbi-list span { background: color-mix(in srgb, var(--accent-ink) 14%, transparent); border-radius: 10px; padding: 7px 12px; font-size: .9rem; font-weight: 500; }
-.pbi-out { margin-top: auto; font-size: 1rem; line-height: 1.5; padding-top: 14px; border-top: 1px solid color-mix(in srgb, var(--accent-ink) 30%, transparent); }
-.auto-steps { list-style: none; margin: 0; padding: 0; counter-reset: a; display: grid; gap: 8px; }
-.auto-steps li { counter-increment: a; display: flex; align-items: center; gap: 10px; background: var(--surface); border-radius: 10px; padding: 7px 12px; font-size: .9rem; font-weight: 500; }
-.auto-steps li::before { content: counter(a); flex: 0 0 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: .75rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
-.auto-arrow { display: flex; align-items: center; justify-content: center; }
-.auto-arrow::before { content: "→"; color: var(--muted); font-size: 1.3rem; }
-.loop { margin-top: 14px; padding: 12px 18px; border-radius: 12px; background: var(--plan-soft); color: var(--plan); font-size: .95rem; font-weight: 500; }
+
 .future .k { font-size: .75rem; font-weight: 700; letter-spacing: .12em; color: var(--accent); }
 .future h3 { margin: 6px 0 4px; }
 
@@ -299,6 +282,8 @@ footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 44
   .topnav .brand { display: none; }
   .hero { padding-top: 32px; }
   .hero h1 { font-size: 1.85rem; }
+  .sec-no { font-size: 1.6rem; }
+  .sec h2 { font-size: 1.08rem; }
   .why, .g2, .g3 { grid-template-columns: 1fr; }
   .tldr { grid-template-columns: 1fr; gap: 6px; }
   .bignums { grid-template-columns: repeat(2, 1fr); }
@@ -306,13 +291,12 @@ footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 44
   .bignums > div:nth-child(n+3) { border-top: 1px solid var(--line); }
   .stat { font-size: 1.6rem; }
   .steps { grid-auto-flow: row; grid-auto-columns: auto; }
+  .steps .step:not(:last-child)::after { right: auto; left: 50%; top: auto; bottom: -17px; transform: translateX(-50%) rotate(90deg); }
+  .t-out .step::before, .handoff { display: none; }
   .sec { padding-top: 60px; }
   .hbars .row { grid-template-columns: 1fr 48px; }
   .hbars .row .lab { grid-column: 1 / -1; }
   .card { padding: 20px; }
-  .auto { grid-template-columns: 1fr; }
-  .auto-arrow { height: 32px; }
-  .auto-arrow::before { content: "↓"; }
   .gh span { display: none; }
 }
 </style>
@@ -323,11 +307,10 @@ footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 44
   <div class="wrap">
     <div class="brand">內部異常行為偵測</div>
     <nav class="links" id="secnav">
-      <a href="#goal">目的</a>
-      <a href="#arch">架構</a>
+      <a href="#goal">背景</a>
       <a href="#method">方法</a>
-      <a href="#demo">成果</a>
-      <a href="#future">結論與應用</a>
+      <a href="#result">結果</a>
+      <a href="#future">未來與貢獻</a>
     </nav>
     <a class="gh" href="https://github.com/yujiingchen-bit/anormaly-analysis" target="_blank" rel="noopener" aria-label="GitHub 原始碼">
       <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span>
@@ -359,9 +342,9 @@ footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 44
     </div>
   </section>
 
-  <!-- ═════════ 01 目的 ═════════ -->
+  <!-- ═════════ 01 背景 ═════════ -->
   <section class="sec" id="goal">
-    <div class="sec-head"><span class="sec-no">01 ・ 目的</span></div>
+    <div class="sec-head"><span class="sec-no">01 ・ 背景</span></div>
     <h2>只看行為異常，永遠慢一步</h2>
     <p class="lead">內部人員擁有合法權限，傳統資安設備認不出來；等異常真的出現，事情往往已經發生了。</p>
     <div class="why">
@@ -394,89 +377,11 @@ footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 44
     </div>
   </section>
 
-  <!-- ═════════ 02 架構 ═════════ -->
-  <section class="sec" id="arch">
-    <div class="sec-head"><span class="sec-no">02 ・ 架構</span></div>
-    <h2>兩條管線，匯流到同一個儀表板</h2>
-    <p class="lead">SQL／Power BI 負責「看見異常」，Python／ML 負責「排出風險順序」；模型分數與原因寫回 Power BI，主管只需要看一個畫面。</p>
-    <div class="diagram">
-      <svg viewBox="0 0 1200 430" role="img" aria-label="架構圖：CERT 原始資料分成兩條管線，SQL Server 清理後進 Power BI 星狀模型與 DAX 基準線；Python 建立人×天特徵、訓練 Random Forest、SHAP 解釋，輸出 risk_daily.csv。兩者匯流到 Power BI 三層儀表板。">
-        <defs>
-          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
-          <marker id="ahm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--plan)"/></marker>
-        </defs>
-        <text class="t-head" x="110" y="26" text-anchor="middle">資料來源</text>
-        <text class="t-head" x="390" y="26" text-anchor="middle">清理 ／ 特徵</text>
-        <text class="t-head" x="660" y="26" text-anchor="middle">建模</text>
-        <text class="t-head" x="1035" y="26" text-anchor="middle">成果</text>
-
-        <rect class="lane1" x="240" y="44" width="590" height="160" rx="12"/>
-        <text class="t-lane" x="258" y="70" style="fill:var(--accent)">看見異常 ・ SQL Server ＋ Power BI</text>
-        <rect class="lane2" x="240" y="222" width="590" height="160" rx="12"/>
-        <text class="t-lane" x="258" y="248" style="fill:var(--plan)">預測風險 ・ Python ＋ 機器學習</text>
-
-        <!-- 來源 -->
-        <rect class="node" x="10" y="44" width="200" height="338" rx="10"/>
-        <text class="t-title" x="28" y="78">CERT r4.2</text>
-        <text class="t-body" x="28" y="104">1,000 人 ・ 17 個月</text>
-        <line x1="28" y1="120" x2="192" y2="120" stroke="var(--line)"/>
-        <text class="t-body" x="28" y="148">登入 ・ USB ・ 上網</text>
-        <text class="t-body" x="28" y="174">Email ・ 檔案複製</text>
-        <text class="t-body" x="28" y="200">OCEAN 人格</text>
-        <text class="t-body" x="28" y="226">LDAP 月名冊</text>
-        <line x1="28" y1="246" x2="192" y2="246" stroke="var(--line)"/>
-        <text class="t-body" x="28" y="274" style="fill:var(--bad);font-weight:600">內鬼答案 70 人</text>
-        <text class="t-body" x="28" y="298">僅用於訓練與評估</text>
-
-        <!-- 上排 -->
-        <rect class="node" x="260" y="88" width="260" height="96" rx="8"/>
-        <text class="t-title" x="278" y="120">SQL Server View</text>
-        <text class="t-body" x="278" y="146">5 類行為事實表＋維度表</text>
-        <text class="t-body" x="278" y="168">LDAP 推算離職狀態</text>
-        <rect class="node" x="550" y="88" width="260" height="96" rx="8"/>
-        <text class="t-title" x="568" y="120">星狀模型 ＋ DAX</text>
-        <text class="t-body" x="568" y="146">員工 × 日期</text>
-        <text class="t-body" x="568" y="168">今天 vs 自己過去平均</text>
-
-        <!-- 下排 -->
-        <rect class="node-ml" x="260" y="266" width="260" height="96" rx="8"/>
-        <text class="t-title" x="278" y="298">人 × 天 寬表</text>
-        <text class="t-body" x="278" y="324">33 萬人天 ・ 66 特徵</text>
-        <text class="t-body" x="278" y="346">自身偏離量 ・ 不洩漏未來</text>
-        <rect class="node-ml" x="550" y="266" width="260" height="96" rx="8"/>
-        <text class="t-title" x="568" y="298">Random Forest ＋ SHAP</text>
-        <text class="t-body" x="568" y="324">逐月滾動重訓</text>
-        <text class="t-body" x="568" y="346">每日風險分數＋前三原因</text>
-
-        <!-- 匯流 -->
-        <rect class="node-key" x="880" y="88" width="310" height="274" rx="12"/>
-        <text class="t-title on-key" x="902" y="124">Power BI 儀表板</text>
-        <text class="t-body on-key" x="902" y="150" style="opacity:.85">三層由大到小鑽研</text>
-        <line x1="902" y1="168" x2="1168" y2="168" stroke="var(--accent-ink)" stroke-opacity=".3"/>
-        <text class="t-body on-key" x="902" y="200">① 全體：今日 Top 10＋原因</text>
-        <text class="t-body on-key" x="902" y="236">② 單一員工：風險走勢</text>
-        <text class="t-body on-key" x="902" y="272">③ 單一行為：登入／上網</text>
-        <text class="t-body on-key" x="902" y="296">　 ／Email／檔案證據</text>
-        <text class="t-body on-key" x="902" y="340" style="font-weight:600">→ 今天先關心誰</text>
-
-        <!-- 箭頭 -->
-        <path class="arrow" d="M210,136 H258" marker-end="url(#ah)"/>
-        <path class="arrow" d="M520,136 H548" marker-end="url(#ah)"/>
-        <path class="arrow" d="M810,136 H878" marker-end="url(#ah)"/>
-        <path class="arrow-ml" d="M210,314 H258" marker-end="url(#ahm)"/>
-        <path class="arrow-ml" d="M520,314 H548" marker-end="url(#ahm)"/>
-        <path class="arrow-ml" d="M810,314 H878" marker-end="url(#ahm)"/>
-        <text class="t-body" x="844" y="302" text-anchor="middle" style="fill:var(--plan);font-size:13px">CSV</text>
-        <text class="t-body" x="710" y="410" text-anchor="middle" style="font-size:13px">全部程式、SQL 腳本與 Power BI 檔以 Git 版本控管，放在 GitHub</text>
-      </svg>
-    </div>
-  </section>
-
-  <!-- ═════════ 03 方法 ═════════ -->
+  <!-- ═════════ 02 方法 ═════════ -->
   <section class="sec" id="method">
-    <div class="sec-head"><span class="sec-no">03 ・ 方法</span></div>
-    <h2>一條流程看完：每一步用了什麼、為什麼</h2>
-    <p class="lead">核心概念只有一個：<b>不跟別人比，跟自己過去比</b>。儀表板用它來標出異常，模型用它當最重要的特徵。</p>
+    <div class="sec-head"><span class="sec-no">02 ・ 方法</span></div>
+    <h2>兩條管線，匯流到同一個儀表板</h2>
+    <p class="lead">SQL／Power BI 負責「看見異常」，Python／ML 負責「排出風險順序」，最後寫回同一個 Power BI。核心概念只有一個：<b>不跟別人比，跟自己過去比</b>。</p>
 
     <div class="method">
       <div class="t-bi">
@@ -491,18 +396,26 @@ footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 44
         <div class="steps">
           <div class="step"><span class="tool">PYTHON ・ DUCKDB</span><h4>人 × 天 特徵</h4><p>66 個特徵：今日行為、自身偏離、組織、人格</p><span class="why">週／月彙總會把異常平均掉</span></div>
           <div class="step"><span class="tool">RF ・ XGB ・ LR</span><h4>逐月滾動訓練</h4><p>每月只用過去資料訓練，考下個月</p><span class="why">模擬真的上線，不偷看未來</span></div>
+          <div class="step"><span class="tool">SAMPLE WEIGHT</span><h4>訓練權重</h4><p>內鬼權重加高、犯案天數少的每天拉高</p><div class="wt-viz" aria-label="小A犯案5天，每天權重高；小B犯案50天，每天權重低；兩人總權重相同"><div class="r"><span>小A 5天</span><div class="b a"><i style="height:22px"></i><i style="height:22px"></i><i style="height:22px"></i><i style="height:22px"></i><i style="height:22px"></i></div></div><div class="r"><span>小B 50天</span><div class="b"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="eq">每人總權重相同</div></div><span class="why">內鬼僅 0.55%，不加權只會猜正常</span></div>
           <div class="step"><span class="tool">WILCOXON ・ MCNEMAR</span><h4>比「提早幾天」</h4><p>每天只查 Top 10，在此限制下比天數</p><span class="why">全判正常準確率就有 99.3%</span></div>
         </div>
       </div>
       <div class="t-out">
         <div class="track-lbl"><i></i>整合</div>
         <div class="steps">
-          <div class="step"><span class="tool">SHAP → POWER BI</span><h4>分數＋原因寫回儀表板</h4><p>每人前三大風險原因</p><span class="why">分數要能解釋，主管才敢用</span></div>
+          <div class="step"><span class="handoff">CSV</span><span class="tool">SHAP → POWER BI</span><h4>分數＋原因寫回儀表板</h4><p>Python 產出 <b class="file">risk_daily.csv</b>（每日分數＋前三原因），Power BI 讀取顯示</p><span class="why">Python 負責算，Power BI 只負責看</span></div>
         </div>
       </div>
     </div>
 
-    <div class="sub-h">驗證了三個假設</div>
+  </section>
+
+  <!-- ═════════ 03 結果 ═════════ -->
+  <section class="sec" id="result">
+    <div class="sec-head"><span class="sec-no">03 ・ 結果</span></div>
+    <h2>只用行為 × Random Forest，中位數提早 5 天</h2>
+    <p class="lead">驗證三個假設，再用兩位真實內鬼示範主管怎麼從警報查到證據。</p>
+
     <div class="grid g3">
       <div class="card hyp">
         <div class="top"><span class="no">H1</span><span class="verdict ok">成立</span></div>
@@ -640,13 +553,11 @@ footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 44
         </div>
       </div>
     </details>
-  </section>
 
-  <!-- ═════════ 04 成果 ═════════ -->
-  <section class="sec" id="demo">
-    <div class="sec-head"><span class="sec-no">04 ・ 成果</span></div>
-    <h2>Demo：主管每天早上打開的那一頁</h2>
-    <p class="lead">兩位真實內鬼，從警報一路查到證據。點右側章節可以直接跳到該段，影片下方會同步說明「現在在看什麼」。</p>
+    <div id="demo" class="demo-head">
+      <div class="sub-h">Demo：主管每天早上打開的那一頁</div>
+      <p class="lead">兩位真實內鬼，從警報一路查到證據。點右側章節可以直接跳到該段，影片下方會同步說明「現在在看什麼」。</p>
+    </div>
 
     <div class="demo">
       <div>
@@ -702,9 +613,9 @@ footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 44
     </div>
   </section>
 
-  <!-- ═════════ 05 結論與應用 ═════════ -->
+  <!-- ═════════ 04 未來與貢獻 ═════════ -->
   <section class="sec" id="future">
-    <div class="sec-head"><span class="sec-no">05 ・ 結論與應用</span></div>
+    <div class="sec-head"><span class="sec-no">04 ・ 未來與貢獻</span></div>
     <h2>輸出的是「關注順序」，不是「有罪判定」</h2>
     <div class="grid g2">
       <div class="card hero-card">
@@ -719,47 +630,7 @@ footer { border-top: 1px solid var(--line); margin-top: 48px; padding: 28px 0 44
       </div>
     </div>
     <p class="note"><b>限制：</b>r4.2 是模擬資料，「人格 → 行為 → 惡意」的關聯是設計出來的；本專題驗證的是<b>做法能讓警報提早</b>，不宣稱人格能預測犯罪。評估只有 45 人，小差異不容易達到顯著。</p>
-
-    <div class="sub-h">實際上線：Python 負責算，Power BI 只負責看</div>
-    <div class="auto">
-      <div class="auto-grp">
-        <div class="lbl"><span>Python</span>每天凌晨自動排程</div>
-        <ol class="auto-steps">
-          <li>讀昨天的新紀錄</li>
-          <li>算特徵（跟自己過去 30 天比）</li>
-          <li>載入模型打分 → 排 Top 10</li>
-          <li>SHAP 算風險原因</li>
-          <li>寫入 CSV／資料庫</li>
-        </ol>
-      </div>
-      <div class="auto-arrow"></div>
-      <div class="auto-mid"><div class="lbl"><span>交接</span></div><b>risk_daily.csv</b><small>或 SQL Server／雲端資料庫</small></div>
-      <div class="auto-arrow"></div>
-      <div class="auto-grp pbi">
-        <div class="lbl"><span>Power BI</span>排程重新整理</div>
-        <div class="pbi-list"><span>今日 Top 10 名單</span><span>每人前三大風險原因</span><span>單一員工風險走勢</span></div>
-        <div class="pbi-out"><b>早上打開</b>就看到，直接決定今天先關心誰</div>
-      </div>
-    </div>
-    <div class="loop">↻　每個月用最新資料<b>重新訓練一次</b>（即本專題的逐月滾動）</div>
-
-    <details class="more">
-      <summary>本專題現況 vs 上線所需<small>還差哪些環節</small></summary>
-      <div class="inner">
-        <div class="tbl"><table class="lt">
-          <thead><tr><th>環節</th><th>上線工具</th><th>本專題現況</th></tr></thead>
-          <tbody>
-            <tr><td>每天自動執行</td><td>Windows 工作排程器／伺服器排程</td><td>手動執行 run_*.bat</td></tr>
-            <tr><td>保存模型</td><td>joblib 存 .pkl，每天載入</td><td>每次重新訓練</td></tr>
-            <tr><td>每日打分</td><td>只處理「新的一天」</td><td>一次算完整段期間</td></tr>
-            <tr><td>交接資料</td><td>CSV、SQL Server、雲端資料庫</td><td class="ok">✓ CSV</td></tr>
-            <tr><td>Power BI 更新</td><td>Power BI Service 排程（需閘道）</td><td>手動重新整理</td></tr>
-          </tbody>
-        </table></div>
-        <p class="tcap">不讓 Power BI 直接跑模型：重新整理慢、雲端支援有限、難除錯。</p>
-        <p class="tcap"><b>降低誤報</b>：ITAdmin 只佔員工 3.5%，卻佔 Top 10 的 36.8%（常態插 USB）→ 下一步加入「跟同職務比」的偏離量，並要求連續 2 天進榜才發警報。</p>
-      </div>
-    </details>
+    <p class="note"><b>下一步：</b>ITAdmin 只佔員工 3.5%，卻佔 Top 10 的 36.8%（工作本來就常插 USB）→ 加入「跟同職務比」的偏離量，並要求連續 2 天進榜才發警報，降低誤報。</p>
 
     <div class="sub-h">同一套邏輯，延伸到更多場景</div>
     <div class="grid g3 future">
